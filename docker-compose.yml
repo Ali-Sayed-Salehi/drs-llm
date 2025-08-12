@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  bug-risk-api:
+    build: .
+    container_name: bug-risk-assessment-api
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_PATH=/models/llama-model
+      - MAX_MODEL_LEN=4096
+      - HOST=0.0.0.0
+      - PORT=8000
+      - ENVIRONMENT=production
+      - VLLM_GPU_MEMORY_UTILIZATION=0.9
+      - VLLM_TENSOR_PARALLEL_SIZE=1
+      - VLLM_DTYPE=bfloat16
+    volumes:
+      - ./models:/models:ro  # Mount your local model directory
+      - ./logs:/app/logs     # Mount logs directory
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Redis for caching (uncomment if needed)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: bug-risk-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   restart: unless-stopped
+
+# Optional: Redis volume (uncomment if using Redis)
+# volumes:
+#   redis_data:
