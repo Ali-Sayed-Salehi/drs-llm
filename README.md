@@ -2,7 +2,7 @@
 
 A high-performance FastAPI service that uses vLLM to serve a Llama sequence classification model for assessing bug risk in code diffs.
 
-## 🚀 Features
+## Features
 
 - **Diff Processing**: Converts raw git diffs to structured XML format using existing utilities
 - **Risk Assessment**: Analyzes code diffs and returns a percentage risk score (0-100%)
@@ -11,7 +11,7 @@ A high-performance FastAPI service that uses vLLM to serve a Llama sequence clas
 - **RESTful API**: Clean, documented endpoints with automatic OpenAPI documentation
 - **Docker Support**: Containerized deployment with GPU support
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
@@ -31,14 +31,14 @@ A high-performance FastAPI service that uses vLLM to serve a Llama sequence clas
                          └──────────────────┘
 ```
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Python 3.8+
 - CUDA-compatible GPU (for vLLM)
 - Local Llama sequence classification model
 - Required Python packages (see `requirements.txt`)
 
-## 🛠️ Installation
+## Installation
 
 1. **Clone the repository**:
    ```bash
@@ -59,7 +59,7 @@ A high-performance FastAPI service that uses vLLM to serve a Llama sequence clas
    export PORT="8000"
    ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Using the Start Script (Linux)
 ```bash
@@ -95,7 +95,7 @@ docker build -t drs-llm .
 docker run -p 8000:8000 -e MODEL_PATH=/models/llama-model drs-llm
 ```
 
-## 📚 API Endpoints
+## API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -107,7 +107,7 @@ docker run -p 8000:8000 -e MODEL_PATH=/models/llama-model drs-llm
 | `/model-info` | GET | Model information |
 | `/docs` | GET | Interactive API documentation |
 
-## 🔧 Configuration
+## Configuration
 
 The API can be configured using environment variables:
 
@@ -123,7 +123,7 @@ The API can be configured using environment variables:
 | `MAX_BATCH_SIZE` | 10 | Maximum batch size for processing |
 | `ENVIRONMENT` | development | Environment (development/production/testing) |
 
-## 📖 Usage Examples
+##  Usage Examples
 
 ### Python Client
 ```python
@@ -154,7 +154,7 @@ curl -X POST "http://localhost:8000/assess-risk" \
   }'
 ```
 
-## 🧪 Testing
+## Testing
 
 Run the comprehensive test suite:
 ```bash
@@ -166,26 +166,8 @@ python test_api.py --test health
 python test_api.py --test single
 ```
 
-## 📁 Project Structure
 
-```
-drs-llm/
-├── __init__.py              # Package initialization
-├── main.py                  # FastAPI application
-├── models.py                # Pydantic data models
-├── model_service.py         # vLLM model service
-├── diff_processor.py        # Diff processing utilities
-├── config.py                # Configuration management
-├── run.py                   # CLI runner script
-├── start.sh                 # Linux startup script
-├── test_api.py              # API testing suite
-├── requirements.txt         # Python dependencies
-├── Dockerfile               # Docker configuration
-├── docker-compose.yml       # Docker Compose setup
-└── README.md               # This file
-```
-
-## 🐳 Docker Deployment
+## Docker Deployment
 
 ### Single Container
 ```bash
@@ -207,56 +189,3 @@ cp -r /path/to/your/llama/model models/llama-model
 # Start services
 docker-compose up -d
 ```
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-1. **Model Not Loading**:
-   - Check `MODEL_PATH` environment variable
-   - Verify model directory exists
-   - Check GPU memory availability
-
-2. **CUDA Errors**:
-   - Ensure CUDA is properly installed
-   - Check GPU driver compatibility
-   - Reduce `VLLM_GPU_MEMORY_UTILIZATION`
-
-3. **Import Errors**:
-   - Verify all dependencies are installed
-   - Check Python path configuration
-   - Ensure vLLM is compatible with your CUDA version
-
-### Logs and Debugging
-
-The API provides detailed logging:
-- Model initialization status
-- Request processing details
-- Error information
-- Performance metrics
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- Built with [FastAPI](https://fastapi.tiangolo.com/)
-- Powered by [vLLM](https://github.com/vllm-project/vllm)
-- Uses [Llama](https://github.com/facebookresearch/llama) models
-- Diff processing utilities from the perf-pilot project
-
-## 📞 Support
-
-For questions and support:
-- Open an issue on GitHub
-- Check the API documentation at `/docs` when running
-- Review the test examples in `test_api.py`

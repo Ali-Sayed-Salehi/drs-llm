@@ -50,13 +50,5 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Start the API
-echo "🌐 Starting API server..."
-echo "📚 API documentation will be available at: http://localhost:8000/docs"
-echo "🔍 Health check: http://localhost:8000/health"
-echo ""
-echo "Press Ctrl+C to stop the server"
-echo ""
-
 # Run the API
 python3 run.py --environment production
