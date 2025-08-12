@@ -57,9 +57,6 @@ class Config:
     @classmethod
     def validate(cls) -> bool:
         """Validate configuration settings"""
-        if cls.MODEL_PATH == "/path/to/your/llama/model":
-            print("❌ MODEL_PATH not set. Please set the MODEL_PATH environment variable.")
-            return False
         
         if not os.path.exists(cls.MODEL_PATH):
             print(f"❌ Model path does not exist: {cls.MODEL_PATH}")
