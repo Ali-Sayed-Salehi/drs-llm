@@ -3,14 +3,9 @@
 
 ## How to run
 ```bash
-# Build once (or when deps change)
+cd docker
 docker compose build
-
-# Start with GPUs and hot reload
-docker compose up -d
-
-# Tail logs
-docker compose logs -f api
+docker compose run -d --rm drs-llm-environment
 
 # Test
 curl -s -X POST http://localhost:8080/predict \

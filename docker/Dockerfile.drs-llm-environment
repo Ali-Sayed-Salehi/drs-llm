@@ -39,10 +39,6 @@ RUN python3 -m venv /opt/venv \
 
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy host script and patch DeepSpeed in a separate step
-COPY docker/scripts/patch_deepspeed.py /workspace/scripts/patch_deepspeed.py
-RUN /opt/venv/bin/python /workspace/scripts/patch_deepspeed.py
-
 EXPOSE 8080
 
 USER ${USERNAME}
