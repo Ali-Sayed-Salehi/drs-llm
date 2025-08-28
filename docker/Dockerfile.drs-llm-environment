@@ -1,0 +1,52 @@
+# Base: CUDA 12.9 + cuDNN + dev tools (Ubuntu 24.04)
+FROM nvidia/cuda:12.9.1-cudnn-devel-ubuntu24.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONUNBUFFERED=1 \
+    HF_HOME=/workspace/.cache/huggingface \
+    TORCHINDUCTOR_CACHE_DIR=/workspace/.torchinductor
+
+# System deps (+ Python headers). NOTE: no stray spaces before the backslash.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 python3-pip python3-venv python3-dev \
+    git git-lfs curl ca-certificates build-essential gosu \
+ && rm -rf /var/lib/apt/lists/* \
+ && git lfs install
+
+# Build-time args to set user
+ARG USERNAME=app
+ARG UID=23519
+ARG GID=6000
+
+# Create group/user matching host
+RUN groupadd -g ${GID} ${USERNAME} \
+ && useradd -m -u ${UID} -g ${GID} -s /bin/bash ${USERNAME}
+
+WORKDIR /workspace
+
+# Caches to avoid username lookups + be writable
+RUN mkdir -p ${HF_HOME} ${TORCHINDUCTOR_CACHE_DIR} \
+ && chown -R ${USERNAME}:${GID} /workspace
+
+# Copy deps
+COPY requirements.txt /workspace/requirements.txt
+
+# Create venv and install into it
+RUN python3 -m venv /opt/venv \
+ && /opt/venv/bin/pip install -U pip setuptools wheel \
+ && if [ -f requirements.txt ]; then /opt/venv/bin/pip install -U --upgrade-strategy eager -r requirements.txt; fi
+
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy host script and patch DeepSpeed in a separate step
+COPY docker/scripts/patch_deepspeed.py /workspace/scripts/patch_deepspeed.py
+RUN /opt/venv/bin/python /workspace/scripts/patch_deepspeed.py
+
+EXPOSE 8080
+
+USER ${USERNAME}
+ENTRYPOINT ["/bin/bash"]
+
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
