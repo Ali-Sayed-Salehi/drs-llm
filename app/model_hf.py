@@ -1,10 +1,11 @@
 # app/model_hf.py
+import os
+import threading
 import torch
 from typing import Optional, Tuple
 from transformers import AutoTokenizer, pipeline
-from .settings import settings
 from transformers import BitsAndBytesConfig
-
+from .settings import settings
 
 def _dtype(name: str):
     name = (name or "float16").lower()
@@ -12,7 +13,17 @@ def _dtype(name: str):
     if name in ("bf16", "bfloat16"):        return torch.bfloat16
     return torch.float32
 
+# Global (per-process) init lock + singleton
+_classifier = None
+_init_lock = threading.Lock()
+
+# Max concurrent inferences per process (default 1)
+_MAX_CONCURRENCY = int(os.getenv("DRSLLM_MAX_CONCURRENCY", "1"))
+
 class HFClassifier:
+    # Class-level semaphore shared by all instances (we use one singleton anyway)
+    _infer_sema = threading.Semaphore(_MAX_CONCURRENCY)
+
     def __init__(self):
         dtype = _dtype(settings.dtype)
         quant_4bit = settings.load_in_4bit
@@ -23,10 +34,14 @@ class HFClassifier:
 
         model_kwargs = dict(
             device_map="auto",
-            torch_dtype=dtype if not quant_4bit else (torch.bfloat16 if dtype == torch.bfloat16 else torch.float32),
+            torch_dtype=(
+                dtype if not quant_4bit
+                else (torch.bfloat16 if dtype == torch.bfloat16 else torch.float32)
+            ),
             low_cpu_mem_usage=True,
             local_files_only=True,
         )
+
         if quant_4bit:
             model_kwargs["quantization_config"] = BitsAndBytesConfig(
                 load_in_4bit=True,
@@ -35,25 +50,35 @@ class HFClassifier:
                 bnb_4bit_compute_dtype=dtype,
             )
 
+        # Build a single pipeline; tokenization & truncation handled there
         self.pipe = pipeline(
             task="text-classification",
             model=settings.model_id,
             tokenizer=tokenizer,
-            model_kwargs=model_kwargs
+            model_kwargs=model_kwargs,
+            # top_k default (1) → returns only best label/score
         )
 
     def predict(self, text: str, max_length: Optional[int] = None) -> Tuple[str, float]:
-        results = self.pipe(
-            text,
-            truncation=True,
-            max_length=max_length or settings.max_length,
-        )
-
+        # Limit concurrent inferences (per process)
+        with self._infer_sema:
+            results = self.pipe(
+                text,
+                truncation=True,
+                max_length=max_length or settings.max_length,
+            )
+        # results is a list with the top-1 dict
         return results[0]["label"], float(results[0]["score"])
 
-_classifier: HFClassifier | None = None
 def get_classifier() -> HFClassifier:
     global _classifier
     if _classifier is None:
-        _classifier = HFClassifier()
+        with _init_lock:                # thread-safe lazy init
+            if _classifier is None:
+                _classifier = HFClassifier()
     return _classifier
+
+# ---- EAGER INITIALIZATION ON IMPORT ----
+# Set DRSLLM_EAGER_INIT=false to disable if you prefer lazy init.
+if os.getenv("DRSLLM_EAGER_INIT", "true").lower() in ("1", "true", "yes"):
+    _ = get_classifier()

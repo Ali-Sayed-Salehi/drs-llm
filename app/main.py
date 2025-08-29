@@ -19,6 +19,6 @@ async def health():
     return {"status": "ok", "model_id": settings.model_id}
 
 @app.post("/predict", response_model=PredictResponse)
-async def predict(req: PredictRequest):
-    label, bug_prob = await score_commit(req.commit_message, req.code_diff)
+def predict(req: PredictRequest):
+    label, bug_prob = score_commit(req.commit_message, req.code_diff)
     return PredictResponse(label=label, bug_probability=bug_prob)

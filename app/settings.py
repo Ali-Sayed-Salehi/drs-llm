@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     dtype: str = Field(default="float16")     # "float16" | "bfloat16" | "float32"
     max_length: int = 4096
     load_in_4bit: bool = True
+    max_concurrency: int = 1          # DRSLLM_MAX_CONCURRENCY
+    eager_init: bool = True           # DRSLLM_EAGER_INIT
 
     # FastAPI server
     host: str = "0.0.0.0"
