@@ -5,10 +5,10 @@
 ```bash
 cd docker
 docker compose build
-docker compose run -d --rm drs-llm-environment
+docker compose up -d drs-llm-environment
 
 # Test
-curl -s -X POST http://localhost:8080/predict \
+curl -s -X POST http://localhost:18080/predict \
   -H 'Content-Type: application/json' \
   -d @- <<'JSON'
 {
