@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-URL="${1:-http://localhost:8080/predict}"
+URL="${1:-http://localhost:18080/predict}"
 
 curl -sS -X POST "$URL" \
   -H 'Content-Type: application/json' \

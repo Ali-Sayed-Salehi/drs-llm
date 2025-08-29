@@ -6,7 +6,7 @@ def build_text(commit_message: str, code_diff: str) -> str:
     structured_diff = diff_to_structured_xml(code_diff)
     lines = [
         "<COMMIT_MESSAGE>",
-        commit_message
+        commit_message,
         "</COMMIT_MESSAGE>",
         structured_diff,
     ]

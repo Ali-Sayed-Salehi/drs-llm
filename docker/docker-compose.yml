@@ -7,7 +7,7 @@ services:
         UID: ${UID}
         GID: ${GID}
         USERNAME: app
-    image: llama-train-environment:latest
+    image: drs-llm-environment:latest
     working_dir: /workspace
     environment:
       - HOME=/workspace
@@ -17,6 +17,6 @@ services:
       - ../:/workspace
       - ../../perf-pilot/LLMs:/LLMs:ro
     ports:
-      - "8080:8080"
+      - "18080:8080"
     runtime: nvidia
-    command: ["./run_with_logs.sh"]
+    command: ["./docker/run_with_logs.sh"]
