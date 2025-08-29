@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from typing import List
 import logging
 from .schemas import PredictRequest, PredictResponse
 from .inference import score_commit
@@ -46,3 +47,12 @@ def predict(req: PredictRequest):
     label, confidence = score_commit(req.commit_message, req.code_diff)
     log.info("label: %s, confidence: %f", label, confidence)
     return PredictResponse(label=label, confidence=confidence)
+
+
+@app.post("/predict_batch", response_model=List[PredictResponse])
+def predict_batch(reqs: List[PredictRequest]):
+    results: List[PredictResponse] = []
+    for r in reqs:
+        label, confidence = score_commit(r.commit_message, r.code_diff)
+        results.append(PredictResponse(label=label, confidence=confidence))
+    return results
