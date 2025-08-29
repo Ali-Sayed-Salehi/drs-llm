@@ -1,33 +1,133 @@
 import re
+from typing import List, Tuple
 
+HUNK_RE = re.compile(r'^@@ -(?P<ol>\d+)(?:,(?P<oc>\d+))? \+(?P<nl>\d+)(?:,(?P<nc>\d+))? @@')
 
-def diff_to_structured_xml(diff_string):
+def validate_unified_diff(diff_string: str) -> Tuple[bool, List[str]]:
     """
-    Converts a multi-file unified diff string into structured XML-like diff format,
-    including full file additions, deletions, renames, and binary file changes.
-
-    Format change: <FILE> is opened without attributes, and the filename is printed
-    on the next line:
-        <FILE>
-          path/to/file
-          ...
-        </FILE>
+    Validate that a diff looks like a unified diff with hunk headers.
+    Returns (ok, issues).
     """
+    issues = []
+    lines = diff_string.strip().splitlines()
+
+    if not lines:
+        return False, ["Empty diff input."]
+
+    seen_any_file = False
+    in_file = False
+    in_hunk = False
+    saw_change_in_current_file = False
+    file_allows_no_hunks = False  # e.g., pure rename or binary change
+    current_file = None
+
+    def end_file():
+        nonlocal in_file, in_hunk, saw_change_in_current_file, file_allows_no_hunks, current_file
+        if in_file and not (saw_change_in_current_file or file_allows_no_hunks):
+            issues.append(f"File '{current_file or '?'}' has no hunks and no binary/rename indication.")
+        in_file = False
+        in_hunk = False
+        saw_change_in_current_file = False
+        file_allows_no_hunks = False
+        current_file = None
+
+    for i, line in enumerate(lines, 1):
+        if line.startswith("diff --git "):
+            # Close previous file block (if any)
+            end_file()
+            seen_any_file = True
+            in_file = True
+            in_hunk = False
+            saw_change_in_current_file = False
+            file_allows_no_hunks = False
+            # Try to capture filename (best-effort)
+            m = re.match(r'diff --git a/(.+?) b/(.+)', line)
+            if m:
+                current_file = m.group(2)
+            continue
+
+        if line.startswith("rename from "):
+            in_file = True
+            file_allows_no_hunks = True
+            continue
+        if line.startswith("rename to "):
+            in_file = True
+            file_allows_no_hunks = True
+            continue
+
+        if line.startswith("Binary files "):
+            in_file = True
+            file_allows_no_hunks = True
+            continue
+
+        if line.startswith("--- "):
+            in_file = True
+            continue
+        if line.startswith("+++ "):
+            in_file = True
+            continue
+
+        if line.startswith("@@"):
+            if not in_file:
+                issues.append(f"Line {i}: hunk header outside of a file section.")
+            else:
+                if not HUNK_RE.match(line):
+                    issues.append(f"Line {i}: malformed hunk header: '{line}'")
+                in_hunk = True
+            continue
+
+        if line.startswith("+") or line.startswith("-"):
+            if not in_hunk:
+                # Some generators omit context but must still include a hunk header
+                issues.append(f"Line {i}: change line outside any hunk: '{line[:80]}'")
+            else:
+                saw_change_in_current_file = True
+            continue
+
+        # Blank or context lines inside a hunk are OK; outside they're neutral
+        if line.startswith(" ") and not in_hunk and in_file:
+            # Context outside hunk is odd but not fatal; ignore.
+            continue
+
+    # Close last file if any
+    end_file()
+
+    if not seen_any_file:
+        # Accept diffs that only use ---/+++ without diff --git
+        if not any(l.startswith("--- ") for l in lines) or not any(l.startswith("+++ ") for l in lines):
+            issues.append("No file sections detected (missing 'diff --git' and '---/+++' headers).")
+
+    return (len(issues) == 0), issues
+
+
+def diff_to_structured_xml(diff_string: str, *, strict: bool = True) -> str:
+    """
+    Converts a multi-file unified diff string into structured XML-like format.
+
+    - Requires proper unified diff hunks (@@ ... @@) unless the change is a rename/binary.
+    - When strict=True, raises ValueError on malformed inputs (recommended).
+      When strict=False, emits issues at the top of the output inside <WARN>.
+    """
+    ok, issues = validate_unified_diff(diff_string)
+    if strict and not ok:
+        raise ValueError("Malformed diff:\n- " + "\n- ".join(issues))
+
     lines = diff_string.strip().splitlines()
     output = []
 
+    if not ok and not strict:
+        output.append("<WARN>")
+        output.extend(f"  {msg}" for msg in issues)
+        output.append("</WARN>")
+
     current_file = None
     current_block_type = None
-    current_block_lines = []
-    old_line = None
-    new_line = None
-
+    current_block_lines: List[str] = []
+    in_hunk = False
     is_file_added = False
     is_file_deleted = False
-    in_hunk = False
     in_git_binary_patch = False
     pending_binary_status = None
-
     rename_from = None
     rename_to = None
     pending_rename = False
@@ -39,14 +139,13 @@ def diff_to_structured_xml(diff_string):
             for l in current_block_lines:
                 output.append(f"      {l}")
             output.append(f"  </{current_block_type.upper()}>")
-            current_block_type = None
-            current_block_lines = []
+        current_block_type = None
+        current_block_lines = []
 
     def flush_file():
         nonlocal current_file, is_file_added, is_file_deleted, in_hunk
         nonlocal in_git_binary_patch, pending_binary_status
         nonlocal rename_from, rename_to, pending_rename
-
         if current_file:
             flush_block()
             if pending_rename and rename_from and rename_to:
@@ -54,7 +153,7 @@ def diff_to_structured_xml(diff_string):
             elif pending_binary_status:
                 output.append(f"  Binary file {pending_binary_status}.")
             output.append(f"</FILE>")
-
+        # reset state
         current_file = None
         is_file_added = False
         is_file_deleted = False
@@ -68,47 +167,46 @@ def diff_to_structured_xml(diff_string):
     for line in lines:
         if line.startswith("diff --git"):
             flush_file()
-            match = re.match(r'diff --git a/(.+?) b/(.+)', line)
-            if match:
-                current_file = match.group(2)
-                output.append(f"<FILE>")
-                output.append(f"  {current_file}")
+            m = re.match(r'diff --git a/(.+?) b/(.+)', line)
+            if m:
+                current_file = m.group(2)
+            else:
+                current_file = None
+            output.append(f"<FILE>")
+            output.append(f"  {current_file or '?'}")
+            continue
 
-        elif line.startswith("rename from "):
+        if line.startswith("rename from "):
             rename_from = line[len("rename from "):].strip()
             pending_rename = True
+            continue
 
-        elif line.startswith("rename to "):
+        if line.startswith("rename to "):
             rename_to = line[len("rename to "):].strip()
-            # If this file wasn't introduced by 'diff --git', open it now.
+            pending_rename = True
             if not current_file:
                 current_file = rename_to
                 output.append(f"<FILE>")
                 output.append(f"  {current_file}")
+            continue
 
-        elif line.startswith("--- "):
+        if line.startswith("--- "):
             if line.strip() == "--- /dev/null":
                 is_file_added = True
+            continue
 
-        elif line.startswith("+++ "):
+        if line.startswith("+++ "):
             if line.strip() == "+++ /dev/null":
                 is_file_deleted = True
+            continue
 
-        elif line.startswith("index "):
-            if "0000000000000000000000000000000000000000" in line:
-                if is_file_added:
-                    pending_binary_status = "added"
-                elif is_file_deleted:
-                    pending_binary_status = "removed"
-                else:
-                    pending_binary_status = "changed"
-
-        elif line.startswith("Binary files "):
+        if line.startswith("Binary files "):
             flush_block()
-            match = re.match(r'Binary files (.+) and (.+) differ', line)
-            if match:
-                left = match.group(1).strip()
-                right = match.group(2).strip()
+            # Mark as a binary change; actual status resolved below
+            left_right = re.match(r'Binary files (.+) and (.+) differ', line)
+            if left_right:
+                left = left_right.group(1).strip()
+                right = left_right.group(2).strip()
                 if left == '/dev/null':
                     pending_binary_status = "added"
                 elif right == '/dev/null':
@@ -116,55 +214,49 @@ def diff_to_structured_xml(diff_string):
                 else:
                     pending_binary_status = "changed"
             flush_file()
+            continue
 
-        elif line.startswith("GIT binary patch"):
+        if line.startswith("GIT binary patch"):
             flush_block()
             in_git_binary_patch = True
             continue
 
-        elif in_git_binary_patch:
-            if line.strip() == "":
-                continue
-            if pending_binary_status is None:
-                if is_file_added:
-                    pending_binary_status = "added"
-                elif is_file_deleted:
-                    pending_binary_status = "removed"
-                else:
-                    pending_binary_status = "changed"
+        if in_git_binary_patch:
+            # Ignore patch contents; the status was already set from headers
+            continue
 
-        elif line.startswith("@@"):
+        if line.startswith("@@"):
             flush_block()
             in_hunk = True
-            parts = line.split()
-            try:
-                old_line = int(parts[1].split(',')[0][1:])
-                new_line = int(parts[2].split(',')[0][1:])
-            except (IndexError, ValueError):
-                old_line = new_line = None
+            # we already validated the header; no need to parse numbers unless you want to track line numbers
+            continue
 
-        elif line.startswith("-"):
+        if line.startswith("-"):
             if not in_hunk and not is_file_deleted:
+                # With strict validation, we wouldn't be here; still, ignore politely
                 continue
             if current_block_type != "REMOVED":
                 flush_block()
                 current_block_type = "REMOVED"
             current_block_lines.append(line[1:].rstrip())
-            if old_line is not None:
-                old_line += 1
+            continue
 
-        elif line.startswith("+"):
+        if line.startswith("+"):
             if not in_hunk and not is_file_added:
                 continue
             if current_block_type != "ADDED":
                 flush_block()
                 current_block_type = "ADDED"
             current_block_lines.append(line[1:].rstrip())
-            if new_line is not None:
-                new_line += 1
+            continue
 
-        else:
-            flush_block()
+        # Context or blank lines:
+        if in_hunk and (line.startswith(" ") or line == ""):
+            # We ignore context lines to keep blocks lean; add them if you want
+            continue
+
+        # Any other line: end current block but keep within file
+        flush_block()
 
     flush_file()
     return "\n".join(output)

@@ -2,6 +2,9 @@ from .model_hf import get_classifier
 from .settings import settings
 from .utils import *
 
+import logging
+log = logging.getLogger(__name__)
+
 def build_text(commit_message: str, code_diff: str) -> str:
     structured_diff = diff_to_structured_xml(code_diff)
     lines = [
@@ -11,11 +14,12 @@ def build_text(commit_message: str, code_diff: str) -> str:
         structured_diff,
     ]
     text = "\n".join(lines)
+    log.info("The structured commit:\n%s\n", text)
 
     return text.strip()
 
 def score_commit(commit_message: str, code_diff: str):
     text = build_text(commit_message, code_diff)
     clf = get_classifier()
-    label, bug_prob = clf.predict(text, settings.max_length)
-    return label, bug_prob
+    label, confidence = clf.predict(text, settings.max_length)
+    return label, confidence

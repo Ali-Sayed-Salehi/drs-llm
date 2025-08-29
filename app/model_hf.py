@@ -7,6 +7,9 @@ from transformers import AutoTokenizer, pipeline
 from transformers import BitsAndBytesConfig
 from .settings import settings
 
+import logging
+log = logging.getLogger(__name__)
+
 def _dtype(name: str):
     name = (name or "float16").lower()
     if name in ("fp16", "float16", "half"): return torch.float16
@@ -50,6 +53,7 @@ class HFClassifier:
                 bnb_4bit_compute_dtype=dtype,
             )
 
+        log.info("Setting up pipeline")
         # Build a single pipeline; tokenization & truncation handled there
         self.pipe = pipeline(
             task="text-classification",
@@ -78,7 +82,3 @@ def get_classifier() -> HFClassifier:
                 _classifier = HFClassifier()
     return _classifier
 
-# ---- EAGER INITIALIZATION ON IMPORT ----
-# Set DRSLLM_EAGER_INIT=false to disable if you prefer lazy init.
-if os.getenv("DRSLLM_EAGER_INIT", "true").lower() in ("1", "true", "yes"):
-    _ = get_classifier()

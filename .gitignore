@@ -20,3 +20,4 @@ __pychache__/
 .cache
 .nv
 .triton
+.bash_history

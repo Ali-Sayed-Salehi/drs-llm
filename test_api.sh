@@ -4,13 +4,13 @@
 
 set -euo pipefail
 
-URL="${1:-http://localhost:18080/predict}"
+URL="${1:-http://localhost:8080/predict}"
 
 curl -sS -X POST "$URL" \
   -H 'Content-Type: application/json' \
   -d @- <<'JSON' | { command -v jq >/dev/null 2>&1 && jq || cat; }
 {
   "commit_message": "Fix NPE when user is null",
-  "code_diff": "diff --git a/U.java b/U.java\n- return u.getId().toString();\n+ return u != null ? String.valueOf(u.getId()) : \"\";"
+  "code_diff": "diff --git a/U.java b/U.java\n--- a/U.java\n+++ b/U.java\n@@ -1 +1 @@\n- return u.getId().toString();\n+ return u != null ? String.valueOf(u.getId()) : \"\";"
 }
 JSON
