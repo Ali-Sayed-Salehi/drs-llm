@@ -43,7 +43,7 @@ export default function Header() {
               lineHeight: 1.2,
               textTransform: 'uppercase',
               fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-              background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 25%, #60a5fa 50%, #3b82f6 75%, #1e40af 100%)',
+              background: 'linear-gradient(135deg, #B22222 0%, #DC143C 25%, #FF1744 50%, #DC143C 75%, #B22222 100%)',
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',

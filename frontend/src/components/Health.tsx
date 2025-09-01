@@ -47,8 +47,8 @@ export default function Health() {
           size="sm"
           style={{ 
             fontWeight: 500,
-            borderColor: '#cbd5e1',
-            color: '#475569'
+            borderColor: '#DC143C',
+            color: '#DC143C'
           }}
         >
           Refresh Status

@@ -2,8 +2,8 @@
 import type { MantineThemeOverride } from '@mantine/core';
 
 export const theme: MantineThemeOverride = {
-  // Use a professional blue as the brand color
-  primaryColor: 'blue',
+  // Use Concordia University dark red as the brand color
+  primaryColor: 'red',
   primaryShade: { light: 6, dark: 8 },
   defaultRadius: 'lg',
   fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
@@ -12,19 +12,19 @@ export const theme: MantineThemeOverride = {
     fontWeight: 600
   },
 
-  // Professional blue palette
+  // Concordia University dark red palette
   colors: {
-    blue: [
-      '#eff6ff', // 0
-      '#dbeafe', // 1
-      '#bfdbfe', // 2
-      '#93c5fd', // 3
-      '#60a5fa', // 4
-      '#3b82f6', // 5 (base)
-      '#2563eb', // 6
-      '#1d4ed8', // 7
-      '#1e40af', // 8
-      '#1e3a8a', // 9
+    red: [
+      '#fef2f2', // 0
+      '#fee2e2', // 1
+      '#fecaca', // 2
+      '#fca5a5', // 3
+      '#f87171', // 4
+      '#ef4444', // 5 (base)
+      '#dc2626', // 6
+      '#b91c1c', // 7
+      '#991b1b', // 8
+      '#7f1d1d', // 9
     ],
   },
 
@@ -32,24 +32,34 @@ export const theme: MantineThemeOverride = {
     Button: {
       defaultProps: { 
         variant: 'filled',
-        color: 'blue',
+        color: 'red',
         size: 'md'
       },
       styles: {
         root: {
           fontWeight: 500,
           borderRadius: '8px',
-          transition: 'all 0.2s ease'
+          transition: 'all 0.2s ease',
+          backgroundColor: '#DC143C',
+          borderColor: '#DC143C',
+          '&:hover': {
+            backgroundColor: '#B22222',
+            borderColor: '#B22222'
+          }
         }
       }
     },
     Tabs: {
-      defaultProps: { color: 'blue' },
+      defaultProps: { color: 'red' },
       styles: {
         tab: {
           fontWeight: 500,
           fontSize: '0.95rem',
-          transition: 'all 0.2s ease'
+          transition: 'all 0.2s ease',
+          '&[data-active]': {
+            color: '#DC143C',
+            borderColor: '#DC143C'
+          }
         }
       }
     },
@@ -84,7 +94,7 @@ export const theme: MantineThemeOverride = {
         input: {
           borderColor: '#e2e8f0',
           '&:focus': {
-            borderColor: '#3b82f6'
+            borderColor: '#A51C30'
           }
         }
       }
@@ -97,7 +107,7 @@ export const theme: MantineThemeOverride = {
         input: {
           borderColor: '#e2e8f0',
           '&:focus': {
-            borderColor: '#3b82f6'
+            borderColor: '#A51C30'
           }
         }
       }
@@ -110,7 +120,7 @@ export const theme: MantineThemeOverride = {
         input: {
           borderColor: '#e2e8f0',
           '&:focus': {
-            borderColor: '#3b82f6'
+            borderColor: '#A51C30'
           }
         }
       }
