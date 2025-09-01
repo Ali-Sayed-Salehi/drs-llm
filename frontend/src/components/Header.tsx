@@ -35,15 +35,20 @@ export default function Header() {
           }}
         >
           <Text 
-            fw={600} 
-            fz={{ base: '1.4rem', md: '1.6rem', lg: '1.8rem' }}
-            c="gray.8"
+            fw={700} 
+            fz={{ base: '1.5rem', md: '1.8rem', lg: '2.1rem' }}
             ta="center"
             style={{
-              letterSpacing: '0.2px',
-              lineHeight: 1.3,
+              letterSpacing: '0.3px',
+              lineHeight: 1.2,
               textTransform: 'uppercase',
-              fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
+              fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+              background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 25%, #60a5fa 50%, #3b82f6 75%, #1e40af 100%)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              position: 'relative'
             }}
           >
             Bug Risk Classifier
