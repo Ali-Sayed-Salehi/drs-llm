@@ -42,13 +42,11 @@ export default function Health() {
           )}
         </Group>
         <Button 
-          variant="outline" 
+          variant="light" 
           onClick={() => refetch()}
-          size="sm"
-          style={{ 
+          style={{
             fontWeight: 500,
-            borderColor: '#cbd5e1',
-            color: '#475569'
+            borderColor: '#cbd5e1'
           }}
         >
           Refresh Status
