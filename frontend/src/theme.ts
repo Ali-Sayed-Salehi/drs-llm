@@ -40,11 +40,11 @@ export const theme: MantineThemeOverride = {
           fontWeight: 500,
           borderRadius: '8px',
           transition: 'all 0.2s ease',
-          backgroundColor: '#DC143C',
-          borderColor: '#DC143C',
+          backgroundColor: '#800020',
+          borderColor: '#800020',
           '&:hover': {
-            backgroundColor: '#B22222',
-            borderColor: '#B22222'
+            backgroundColor: '#5D001E',
+            borderColor: '#5D001E'
           }
         }
       }
@@ -57,8 +57,8 @@ export const theme: MantineThemeOverride = {
           fontSize: '0.95rem',
           transition: 'all 0.2s ease',
           '&[data-active]': {
-            color: '#DC143C',
-            borderColor: '#DC143C'
+            color: '#800020',
+            borderColor: '#800020'
           }
         }
       }
