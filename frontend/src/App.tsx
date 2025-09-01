@@ -7,10 +7,10 @@ import BatchPredict from './components/BatchPredict';
 
 export default function App() {
   return (
-    <Container size="lg" py="lg">
-      <Stack gap="md">
+    <Container size="lg" py="xl">
+      <Stack gap="xl">
         <Header />
-        <Paper p="md" withBorder>
+        <Paper p="lg" withBorder radius="md" shadow="sm">
           <Health />
         </Paper>
         <Tabs color="red" defaultValue="single" keepMounted={false}>

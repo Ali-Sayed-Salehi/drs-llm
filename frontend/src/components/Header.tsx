@@ -7,7 +7,7 @@ export default function Header() {
       <Box pos="relative">
         <Image src="/banner-1920x512.png" h={{ base: 180, md: 240 }} w="100%" fit="cover" />
         <Overlay
-          gradient="linear-gradient(90deg, rgba(153,27,27,.80) 0%, rgba(153,27,27,.50) 45%, rgba(153,27,27,0.2) 75%)"
+          gradient="linear-gradient(90deg, rgba(153,27,27,.60) 0%, rgba(153,27,27,.30) 45%, rgba(153,27,27,0.1) 75%)"
           opacity={1}
         />
         <Box 
@@ -15,18 +15,19 @@ export default function Header() {
           inset={0} 
           display="flex" 
           align="center" 
+          justify="center"
           p="xl"
-          style={{ 
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 100%)'
-          }}
         >
           <Text 
-            fw={800} 
-            fz={{ base: '2xl', md: '3xl', lg: '4xl' }}
+            fw={900} 
+            fz={{ base: '2.5rem', md: '3.5rem', lg: '4rem' }}
             c="white"
+            ta="center"
             style={{
-              textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-              letterSpacing: '0.5px'
+              textShadow: '3px 3px 6px rgba(0,0,0,0.9), 0 0 20px rgba(153,27,27,0.8)',
+              letterSpacing: '1px',
+              lineHeight: 1.2,
+              textTransform: 'uppercase'
             }}
           >
             Bug Risk Classifier
