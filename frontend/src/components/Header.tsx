@@ -1,4 +1,3 @@
-
 // src/components/Header.tsx
 import { Box, Text, Image, Paper } from '@mantine/core';
 
@@ -44,7 +43,7 @@ export default function Header() {
               lineHeight: 1.2,
               textTransform: 'uppercase',
               fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-              background: 'linear-gradient(135deg, #374151 0%, #6B7280 25%, #9CA3AF 50%, #6B7280 75%, #374151 100%)',
+                              background: 'linear-gradient(135deg, #374151 0%, #6B7280 25%, #9CA3AF 50%, #6B7280 75%, #374151 100%)',
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',

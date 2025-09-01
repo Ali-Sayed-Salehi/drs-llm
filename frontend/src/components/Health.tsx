@@ -21,7 +21,7 @@ export default function Health() {
           <Box>
             <Text size="sm" c="gray.6" mb={4}>Status</Text>
             <Badge 
-              color={isError ? 'red' : isLoading ? 'yellow' : 'teal'} 
+              color={isError ? 'gray' : isLoading ? 'yellow' : 'blue'} 
               size="lg"
               variant="light"
               style={{ 
@@ -47,8 +47,8 @@ export default function Health() {
           size="sm"
           style={{ 
             fontWeight: 500,
-            borderColor: '#800020',
-            color: '#800020'
+            borderColor: '#cbd5e1',
+            color: '#475569'
           }}
         >
           Refresh Status

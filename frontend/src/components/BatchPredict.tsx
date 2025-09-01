@@ -52,7 +52,7 @@ export default function BatchPredict() {
             <Card key={it.id}>
               <Group justify="space-between" mb="xs">
                 <Text fw={600}>Item #{i + 1}</Text>
-                <ActionIcon variant="subtle" color="red" onClick={() => removeItem(it.id)} aria-label="Remove item">
+                <ActionIcon variant="subtle" color="gray" onClick={() => removeItem(it.id)} aria-label="Remove item">
                   <IconTrash size={16} />
                 </ActionIcon>
               </Group>
@@ -88,7 +88,7 @@ export default function BatchPredict() {
           Predict batch ({items.length})
         </Button>
         {m.isPending && <Text>Running…</Text>}
-        {m.isError && <Text c="red.5">{(m.error as Error).message}</Text>}
+        {m.isError && <Text c="gray.6">{(m.error as Error).message}</Text>}
       </Group>
 
       {Array.isArray(m.data) && m.data.length > 0 && (

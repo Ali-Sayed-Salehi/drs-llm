@@ -41,7 +41,7 @@ export default function SinglePredict() {
           <Button loading={isPending} onClick={() => mutate({ commit_message: commit, code_diff: diff })}>
             Predict
           </Button>
-          {isError && <Text c="red.5">{(error as Error).message}</Text>}
+          {isError && <Text c="gray.6">{(error as Error).message}</Text>}
         </Group>
 
         {data && (
