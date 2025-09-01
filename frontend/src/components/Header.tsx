@@ -50,7 +50,7 @@ export default function Header() {
           }}
         >
           <Image 
-            src="/banner-1920x512.png" 
+            src="/banner.png" 
             h="80%" 
             w="auto" 
             fit="contain"
