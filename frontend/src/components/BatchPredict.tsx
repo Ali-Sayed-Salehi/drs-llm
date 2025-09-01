@@ -55,7 +55,9 @@ print("ok")`,
           onClick={addItem}
           style={{
             fontWeight: 500,
-            borderColor: '#cbd5e1'
+            borderColor: isDarkMode ? '#475569' : '#cbd5e1',
+            backgroundColor: isDarkMode ? '#334155' : '#f8fafc',
+            color: isDarkMode ? '#cbd5e1' : '#475569'
           }}
         >
           Add Item
