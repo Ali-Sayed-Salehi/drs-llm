@@ -1,0 +1,32 @@
+# DRS-LLM Environment Configuration
+# Copy this content to a .env file and modify as needed
+
+# Model Configuration
+DRSLLM_MODEL_ID=/LLMs/pretrained/sequence-classification/test
+DRSLLM_DTYPE=float16
+DRSLLM_MAX_LENGTH=4096
+DRSLLM_LOAD_IN_4BIT=true
+DRSLLM_MAX_CONCURRENCY=1
+DRSLLM_EAGER_INIT=true
+
+# Server Configuration
+DRSLLM_HOST=0.0.0.0
+DRSLLM_PORT=8080
+
+# Logging Configuration
+DRSLLM_LOG_LEVEL=INFO
+DRSLLM_LOG_TO_FILE=true
+DRSLLM_LOG_TO_CONSOLE=true
+DRSLLM_LOG_JSON_FORMAT=false
+DRSLLM_LOG_MAX_FILE_SIZE=10485760
+DRSLLM_LOG_BACKUP_COUNT=5
+
+# Environment-specific logging
+# Development: DRSLLM_LOG_LEVEL=DEBUG
+# Production: DRSLLM_LOG_LEVEL=WARNING, DRSLLM_LOG_JSON_FORMAT=true
+# Testing: DRSLLM_LOG_LEVEL=DEBUG, DRSLLM_LOG_TO_FILE=false
+
+
+
+
+
