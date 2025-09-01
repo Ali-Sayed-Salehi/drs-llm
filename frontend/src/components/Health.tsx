@@ -1,6 +1,7 @@
 // src/components/Health.tsx
 import { useHealth } from '../hooks/useHealth';
 import { Badge, Button, Group, Text, Box } from '@mantine/core';
+import { IconRefresh } from '@tabler/icons-react';
 
 export default function Health() {
   const { data, isLoading, isError, refetch } = useHealth();
@@ -21,7 +22,7 @@ export default function Health() {
           <Box>
             <Text size="sm" c="gray.6" mb={4}>Status</Text>
             <Badge 
-              color={isError ? 'gray' : isLoading ? 'yellow' : 'blue'} 
+              color={isError ? 'gray' : isLoading ? 'yellow' : 'green'} 
               size="lg"
               variant="light"
               style={{ 
@@ -42,6 +43,7 @@ export default function Health() {
           )}
         </Group>
         <Button 
+          leftSection={<IconRefresh size={16} />}
           variant="light" 
           onClick={() => refetch()}
           style={{
