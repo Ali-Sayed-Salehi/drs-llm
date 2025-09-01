@@ -8,7 +8,7 @@ export default function Header() {
         pos="relative" 
         h={{ base: 180, md: 240 }}
         style={{
-          background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+          background: 'white',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -55,9 +55,7 @@ export default function Header() {
             w="auto" 
             fit="contain"
             style={{ 
-              maxWidth: '300px',
-              borderRadius: '8px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              maxWidth: '300px'
             }}
           />
         </Box>
