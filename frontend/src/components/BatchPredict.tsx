@@ -5,10 +5,12 @@ import { IconTrash, IconPlus, IconBrain, IconCode, IconMessage } from '@tabler/i
 import { usePredictBatch } from '../hooks/usePredictBatch';
 import type { PredictRequest } from '../types';
 import { PLACEHOLDER_DIFF } from '../constants';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Item = { id: string; commit_message: string; code_diff: string };
 
 export default function BatchPredict() {
+  const { isDarkMode } = useTheme();
   const [items, setItems] = useState<Item[]>([
     { id: crypto.randomUUID(), commit_message: 'Fix NPE', code_diff: PLACEHOLDER_DIFF },
     {
