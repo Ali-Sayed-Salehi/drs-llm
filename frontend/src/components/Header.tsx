@@ -1,37 +1,65 @@
 // src/components/Header.tsx
-import { Box, Text, Image, Paper, Overlay } from '@mantine/core';
+import { Box, Text, Image, Paper } from '@mantine/core';
 
 export default function Header() {
   return (
     <Paper radius="md" withBorder p={0} style={{ overflow: 'hidden' }}>
-      <Box pos="relative">
-        <Image src="/banner-1920x512.png" h={{ base: 180, md: 240 }} w="100%" fit="cover" />
-        <Overlay
-          gradient="linear-gradient(90deg, rgba(153,27,27,.60) 0%, rgba(153,27,27,.30) 45%, rgba(153,27,27,0.1) 75%)"
-          opacity={1}
-        />
+      <Box 
+        pos="relative" 
+        h={{ base: 180, md: 240 }}
+        style={{
+          background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 2rem'
+        }}
+      >
+        {/* Title - Left Side, Centered */}
         <Box 
-          pos="absolute" 
-          inset={0} 
-          display="flex" 
-          align="center" 
-          justify="center"
-          p="xl"
+          style={{ 
+            flex: 1,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
         >
           <Text 
             fw={900} 
-            fz={{ base: '2.5rem', md: '3.5rem', lg: '4rem' }}
-            c="white"
+            fz={{ base: '2rem', md: '2.5rem', lg: '3rem' }}
+            c="dark.8"
             ta="center"
             style={{
-              textShadow: '3px 3px 6px rgba(0,0,0,0.9), 0 0 20px rgba(153,27,27,0.8)',
-              letterSpacing: '1px',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
+              letterSpacing: '0.5px',
               lineHeight: 1.2,
               textTransform: 'uppercase'
             }}
           >
             Bug Risk Classifier
           </Text>
+        </Box>
+
+        {/* Banner Image - Right Side */}
+        <Box 
+          style={{ 
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <Image 
+            src="/banner-1920x512.png" 
+            h="80%" 
+            w="auto" 
+            fit="contain"
+            style={{ 
+              maxWidth: '300px',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+            }}
+          />
         </Box>
       </Box>
     </Paper>
