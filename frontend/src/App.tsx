@@ -1,6 +1,7 @@
 // src/App.tsx
-import { Container, Stack, Tabs } from '@mantine/core';
+import { Container, Stack, Tabs, Paper, Group } from '@mantine/core';
 import Header from './components/Header';
+import Health from './components/Health';
 import SinglePredict from './components/SinglePredict';
 import BatchPredict from './components/BatchPredict';
 
@@ -9,6 +10,9 @@ export default function App() {
     <Container size="lg" py="lg">
       <Stack gap="md">
         <Header />
+        <Paper p="md" withBorder>
+          <Health />
+        </Paper>
         <Tabs color="red" defaultValue="single" keepMounted={false}>
           <Tabs.List>
             <Tabs.Tab value="single">Single</Tabs.Tab>
