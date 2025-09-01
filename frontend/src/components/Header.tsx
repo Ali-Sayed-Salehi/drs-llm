@@ -28,10 +28,20 @@ export default function Header() {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0 3rem',
-          border: `1px solid ${isDarkMode ? '#475569' : '#f1f5f9'}`
+          border: `1px solid ${isDarkMode ? '#374151' : '#f1f5f9'}`
         }}
       >
-        {/* Title - Left Side, Centered */}
+        {/* Theme Toggle - Top Left */}
+        <Box 
+          pos="absolute" 
+          top="1.5rem" 
+          left="1.5rem"
+          style={{ zIndex: 10 }}
+        >
+          <ThemeToggle />
+        </Box>
+
+        {/* Title - Centered */}
         <Box 
           style={{ 
             flex: 1,
@@ -49,48 +59,39 @@ export default function Header() {
               lineHeight: 1.2,
               textTransform: 'uppercase',
               fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-              background: isDarkMode
-                ? 'linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 25%, #94a3b8 50%, #cbd5e1 75%, #e2e8f0 100%)'
-                : 'linear-gradient(135deg, #374151 0%, #6B7280 25%, #9CA3AF 50%, #6B7280 75%, #374151 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-              position: 'relative'
+              color: isDarkMode ? '#f1f5f9' : '#1e293b',
+              textShadow: isDarkMode 
+                ? '0 2px 4px rgba(0, 0, 0, 0.3)' 
+                : '0 2px 4px rgba(0, 0, 0, 0.1)'
             }}
           >
             Bug Risk Classifier
           </Text>
         </Box>
 
-        {/* Right Side - Theme Toggle and Banner Image */}
-        <Group gap="lg" align="center">
-          <ThemeToggle />
-          
-          {/* Banner Image */}
-          <Box 
+        {/* Banner Image - Right Side */}
+        <Box 
+          style={{ 
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem'
+          }}
+        >
+          <Image 
+            src="/banner.png" 
+            h="85%" 
+            w="auto" 
+            fit="contain"
             style={{ 
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '1rem'
+              maxWidth: '280px',
+              filter: isDarkMode 
+                ? 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3)) brightness(0.9)'
+                : 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))'
             }}
-          >
-            <Image 
-              src="/banner.png" 
-              h="85%" 
-              w="auto" 
-              fit="contain"
-              style={{ 
-                maxWidth: '280px',
-                filter: isDarkMode 
-                  ? 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3)) brightness(0.9)'
-                  : 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))'
-              }}
-            />
-          </Box>
-        </Group>
+          />
+        </Box>
       </Box>
     </Paper>
   );
