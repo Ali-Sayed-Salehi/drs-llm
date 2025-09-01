@@ -1,43 +1,58 @@
 // src/components/SinglePredict.tsx
-import { useState } from "react";
-import { usePredict } from "../hooks/usePredict";
-import ResultCard from "./ResultCard";
-import { DEFAULT_COMMIT, PLACEHOLDER_DIFF } from "../constants";
+import { useState } from 'react';
+import { usePredict } from '../hooks/usePredict';
+import { Button, Card, Stack, Textarea, Group, Text } from '@mantine/core';
+
+const placeholderDiff = `diff --git a/src/U.java b/src/U.java
+--- a/src/U.java
++++ b/src/U.java
+@@ -1 +1 @@
+-return u.getId().toString();
++return u != null ? String.valueOf(u.getId()) : "";`;
 
 export default function SinglePredict() {
-  const [commit, setCommit] = useState(DEFAULT_COMMIT);
-  const [diff, setDiff] = useState(PLACEHOLDER_DIFF);
-  const predict = usePredict();
+  const [commit, setCommit] = useState('Fix NPE when user is null');
+  const [diff, setDiff] = useState(placeholderDiff);
+  const { data, isPending, isError, error, mutate } = usePredict();
 
   return (
-    <div className="card stack">
-      <label>
-        <div className="lbl">Commit message</div>
-        <textarea rows={2} value={commit} onChange={(e) => setCommit(e.target.value)} />
-      </label>
+    <Card withBorder>
+      <Stack>
+        <div>
+          <Textarea
+            label="Commit message"
+            autosize minRows={2}
+            value={commit}
+            onChange={(e) => setCommit(e.currentTarget.value)}
+          />
+        </div>
 
-      <label>
-        <div className="lbl">Code diff (unified)</div>
-        <textarea rows={10} className="mono" value={diff} onChange={(e) => setDiff(e.target.value)} />
-      </label>
+        <div>
+          <Textarea
+            label="Code diff (unified)"
+            autosize minRows={8}
+            value={diff}
+            onChange={(e) => setDiff(e.currentTarget.value)}
+            styles={{ input: { fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' } }}
+          />
+        </div>
 
-      <div className="row gap">
-        <button
-          onClick={() => predict.mutate({ commit_message: commit, code_diff: diff })}
-          disabled={predict.isPending || !commit || !diff}
-        >
-          Predict
-        </button>
-        {predict.isPending && <span>Running…</span>}
-        {predict.isError && <span className="err">{(predict.error as Error).message}</span>}
-      </div>
+        <Group gap="sm">
+          <Button loading={isPending} onClick={() => mutate({ commit_message: commit, code_diff: diff })}>
+            Predict
+          </Button>
+          {isError && <Text c="red.5">{(error as Error).message}</Text>}
+        </Group>
 
-      {predict.data && (
-        <>
-          <div className="hr" />
-          <ResultCard result={predict.data} />
-        </>
-      )}
-    </div>
+        {data && (
+          <Card withBorder>
+            <Stack gap="xs">
+              <Text><b>Label:</b> {data.label}</Text>
+              <Text><b>Confidence:</b> {(data.confidence * 100).toFixed(1)}%</Text>
+            </Stack>
+          </Card>
+        )}
+      </Stack>
+    </Card>
   );
 }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <style>
+      .outline{stroke:#1f2937;stroke-width:6;stroke-linejoin:round;stroke-linecap:round;}
+    </style>
+  </defs>
+
+  <!-- Transparent background -->
+  <rect x="0" y="0" width="256" height="256" fill="none"/>
+
+  <!-- Collar (Concordia-esque maroon) -->
+  <ellipse cx="152" cy="216" rx="64" ry="18" fill="#7d1f2b" class="outline"/>
+
+  <!-- Neck -->
+  <rect x="114" y="162" width="82" height="62" rx="18" fill="#F1E8DE" class="outline"/>
+  <rect x="114" y="190" width="82" height="20" rx="10" fill="#E7DDCF"/>
+
+  <!-- Head base -->
+  <ellipse cx="150" cy="120" rx="64" ry="76" fill="#F1E8DE" class="outline"/>
+  <!-- Cheek / muzzle -->
+  <ellipse cx="130" cy="150" rx="36" ry="28" fill="#E7DDCF" class="outline"/>
+  <!-- Nose line -->
+  <path d="M116 154c10 10 26 10 36 0" fill="none" class="outline" stroke-width="4"/>
+  <circle cx="134" cy="162" r="4" fill="#1f2937"/>
+
+  <!-- Hair tuft -->
+  <path d="M138 78c-6 6-10 14-10 22 10-10 22-16 36-18-8-6-16-8-26-4z" fill="#F7F1E8" class="outline" stroke-width="4"/>
+
+  <!-- Ears -->
+  <path d="M100 68 L88 28 L110 34 L116 74 Z" fill="#F1E8DE" class="outline"/>
+  <path d="M94 44 L104 58 L100 64 L92 50 Z" fill="#7d1f2b"/>
+  <path d="M196 64 L212 26 L192 32 L184 72 Z" fill="#F1E8DE" class="outline"/>
+  <path d="M200 40 L192 54 L188 60 L198 42 Z" fill="#7d1f2b"/>
+
+  <!-- Goggles -->
+  <rect x="102" y="98" width="98" height="40" rx="16" fill="#0f172a" class="outline"/>
+  <!-- Goggle rims (sides) -->
+  <circle cx="100" cy="118" r="12" fill="#1f2937" class="outline"/>
+  <circle cx="202" cy="118" r="12" fill="#1f2937" class="outline"/>
+  <!-- Lens highlight -->
+  <circle cx="170" cy="114" r="6" fill="#7dd3fc"/>
+  <rect x="112" y="106" width="70" height="6" rx="3" fill="#334155"/>
+  <rect x="112" y="116" width="48" height="6" rx="3" fill="#334155"/>
+
+  <!-- Subtle head shadow -->
+  <path d="M180 84c12 14 18 32 18 52 0 30-16 54-36 64 28-6 48-40 48-72 0-16-8-32-30-44z" fill="#EDE3D6" opacity="0.8"/>
+
+</svg>

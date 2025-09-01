@@ -1,29 +1,27 @@
-import { useState } from "react";
-import Health from "./components/Health";
-import SinglePredict from "./components/SinglePredict";
-import BatchPredict from "./components/BatchPredict";
+// src/App.tsx
+import { Container, Stack, Tabs } from '@mantine/core';
+import Header from './components/Header';
+import SinglePredict from './components/SinglePredict';
+import BatchPredict from './components/BatchPredict';
 
 export default function App() {
-  const [tab, setTab] = useState<"single" | "batch">("single");
-
   return (
-    <div className="container stack">
-      <header className="row between">
-        <h1>Bug Risk Classifier</h1>
-        <Health />
-      </header>
-
-      <div className="tabs">
-        <button className={`tab ${tab === "single" ? "active" : ""}`} onClick={() => setTab("single")}>Single</button>
-        <button className={`tab ${tab === "batch" ? "active" : ""}`} onClick={() => setTab("batch")}>Batch</button>
-      </div>
-
-      {tab === "single" ? <SinglePredict /> : <BatchPredict />}
-
-      <footer className="muted">
-        <div className="hr" />
-        API base: <code className="mono">{import.meta.env.VITE_API_BASE ?? "http://localhost:8080"}</code>
-      </footer>
-    </div>
+    <Container size="lg" py="lg">
+      <Stack gap="md">
+        <Header />
+        <Tabs color="red" defaultValue="single" keepMounted={false}>
+          <Tabs.List>
+            <Tabs.Tab value="single">Single</Tabs.Tab>
+            <Tabs.Tab value="batch">Batch</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="single" pt="sm">
+            <SinglePredict />
+          </Tabs.Panel>
+          <Tabs.Panel value="batch" pt="sm">
+            <BatchPredict />
+          </Tabs.Panel>
+        </Tabs>
+      </Stack>
+    </Container>
   );
 }
