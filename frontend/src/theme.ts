@@ -114,6 +114,13 @@ export const theme: MantineThemeOverride = {
           }
         }
       }
+    },
+    ActionIcon: {
+      styles: {
+        root: {
+          transition: 'all 0.2s ease'
+        }
+      }
     }
   },
 };
