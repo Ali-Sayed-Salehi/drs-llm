@@ -24,18 +24,17 @@ export default function Header() {
             alignItems: 'center'
           }}
         >
-          <Text 
-            fw={900} 
-            fz={{ base: '2rem', md: '2.5rem', lg: '3rem' }}
-            c="dark.8"
-            ta="center"
-            style={{
-              textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
-              letterSpacing: '0.5px',
-              lineHeight: 1.2,
-              textTransform: 'uppercase'
-            }}
-          >
+                      <Text 
+              fw={700} 
+              fz={{ base: '1.5rem', md: '1.8rem', lg: '2.2rem' }}
+              c="gray.7"
+              ta="center"
+              style={{
+                letterSpacing: '0.3px',
+                lineHeight: 1.2,
+                textTransform: 'uppercase'
+              }}
+            >
             Bug Risk Classifier
           </Text>
         </Box>

@@ -13,7 +13,7 @@ export default function App() {
         <Paper p="lg" withBorder radius="md" shadow="sm">
           <Health />
         </Paper>
-        <Tabs color="red" defaultValue="single" keepMounted={false}>
+        <Tabs color="blue" defaultValue="single" keepMounted={false}>
           <Tabs.List>
             <Tabs.Tab value="single">Single</Tabs.Tab>
             <Tabs.Tab value="batch">Batch</Tabs.Tab>
