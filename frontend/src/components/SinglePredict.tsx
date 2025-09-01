@@ -156,7 +156,7 @@ export default function SinglePredict() {
               <Box>
                 <Text size="sm" c="gray.6" mb={4}>Risk Level</Text>
                 <Badge 
-                  color={data.label === 'buggy' ? 'red' : 'green'} 
+                  color={data.label === 'POSITIVE' ? 'red' : 'green'} 
                   size="lg"
                   variant="light"
                   style={{ 
@@ -165,7 +165,7 @@ export default function SinglePredict() {
                     fontSize: '0.95rem'
                   }}
                 >
-                  {data.label === 'buggy' ? 'High Risk' : 'Low Risk'}
+                  {data.label === 'POSITIVE' ? 'High Risk' : 'Low Risk'}
                 </Badge>
               </Box>
               

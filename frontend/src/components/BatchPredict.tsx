@@ -15,12 +15,12 @@ export default function BatchPredict() {
       id: crypto.randomUUID(),
       commit_message: 'Refactor: rename',
       code_diff: `diff --git a/app/a.py b/app/a.py
-                  --- a/app/a.py
-                  +++ b/app/a.py
-                  @@ -1,3 +1,3 @@
-                  -x = 1
-                  +count = 1
-                  print("ok")`,
+--- a/app/a.py
++++ b/app/a.py
+@@ -1,3 +1,3 @@
+-x = 1
++count = 1
+print("ok")`,
     },
   ]);
 
@@ -249,7 +249,7 @@ export default function BatchPredict() {
                       <Box>
                         <Text size="sm" c="gray.6" mb={4}>Risk Level</Text>
                         <Badge 
-                          color={r.label === 'buggy' ? 'red' : 'green'} 
+                          color={r.label === 'POSITIVE' ? 'red' : 'green'} 
                           size="md"
                           variant="light"
                           style={{ 
@@ -257,7 +257,7 @@ export default function BatchPredict() {
                             padding: '0.4rem 0.8rem'
                           }}
                         >
-                          {r.label === 'buggy' ? 'High Risk' : 'Low Risk'}
+                          {r.label === 'POSITIVE' ? 'High Risk' : 'Low Risk'}
                         </Badge>
                       </Box>
                       
