@@ -14,7 +14,6 @@ def build_text(commit_message: str, code_diff: str) -> str:
         structured_diff,
     ]
     text = "\n".join(lines)
-    log.info("The structured commit:\n%s\n", text)
 
     return text.strip()
 

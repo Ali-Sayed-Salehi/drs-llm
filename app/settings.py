@@ -4,7 +4,7 @@ from typing import Literal
 
 class Settings(BaseSettings):
     # Model / inference
-    model_id: str = "/LLMs/pretrained/sequence-classification/test"
+    model_id: str = "/LLMs/trained/sequence-classification/llama3.1_8B_apachejit_small"
     dtype: Literal["float16", "bfloat16", "float32"] = "float16"
     max_length: int = 4096
     load_in_4bit: bool = True

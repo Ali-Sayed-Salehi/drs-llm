@@ -13,8 +13,8 @@ export default function Header() {
       p={0} 
       style={{ 
         overflow: 'hidden',
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        border: `1px solid ${isDarkMode ? '#374151' : '#e2e8f0'}`
+        border: `1px solid ${isDarkMode ? '#2b3442' : '#e2e8f0'}`,
+        backgroundClip: 'padding-box',
       }}
     >
       <Box 
