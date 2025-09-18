@@ -1,13 +1,14 @@
 from contextlib import asynccontextmanager
 import asyncio
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import logging
-from .schemas import PredictRequest, PredictResponse
+from .schemas import PredictRequest, PredictResponse, PredictBySHARequest
 from .inference import score_commit
 from .settings import settings
 from .model_hf import get_classifier
+from .github_client import fetch_commit_message_and_diff
 
 from .logging_setup import setup_logging
 setup_logging()
@@ -56,3 +57,21 @@ def predict_batch(reqs: List[PredictRequest]):
         label, confidence = score_commit(r.commit_message, r.code_diff)
         results.append(PredictResponse(label=label, confidence=confidence))
     return results
+
+@app.post("/predict_by_sha", response_model=PredictResponse)
+def predict_by_sha(req: PredictBySHARequest):
+    """
+    Resolve repo + sha from GitHub → fetch message + unified diff → reuse score_commit(...)
+    """
+    commit_message, code_diff = fetch_commit_message_and_diff(req.repo, req.sha)
+
+    # Optional: validate/normalize diff before inference (your utils already do strict checking)
+    try:
+        # This will raise on malformed diffs if you keep strict=True inside build_text path
+        label, confidence = score_commit(commit_message, code_diff)
+    except ValueError as e:
+        # Your diff_to_structured_xml(strict=True) could raise here
+        raise HTTPException(status_code=422, detail=f"Malformed diff: {e}") from e
+
+    log.info("label: %s, confidence: %f (repo=%s sha=%s)", label, confidence, req.repo, req.sha)
+    return PredictResponse(label=label, confidence=confidence)

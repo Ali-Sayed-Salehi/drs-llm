@@ -4,10 +4,16 @@
 # Examples:
 #   ./test_api.sh
 #   ./test_api.sh http://localhost:18080
+#
+# Optional env vars (for test 5):
+#   GH_REPO="owner/repo"      # default: octocat/Hello-World
+#   GH_SHA="<commit-sha>"     # default: a known public commit
 
 set -euo pipefail
 
 BASE="${1:-http://localhost:8080}"
+GH_REPO="${GH_REPO:-apache/flink}"
+GH_SHA="${GH_SHA:-d7b5213f1fd2910ce0fd111027608fb452c1f733}"
 
 jq_or_cat() {
   if command -v jq >/dev/null 2>&1; then jq; else cat; fi
@@ -57,5 +63,18 @@ curl -sS -X POST "${BASE}/predict_batch" \
     "code_diff": "diff --git a/README.md b/README.md\nnew file mode 100644\nindex 0000000..e69de29\n--- /dev/null\n+++ b/README.md\n@@ -0,0 +1,3 @@\n+# Project\n+Initial commit\n+"
   }
 ]
+JSON
+echo
+
+echo "==> 5) /predict_by_sha (GitHub API flow)"
+echo "    Using GH_REPO=${GH_REPO}  GH_SHA=${GH_SHA}"
+echo "    (If testing private repos, ensure your API has DRSLLM_GITHUB_TOKEN set)"
+curl -sS -X POST "${BASE}/predict_by_sha" \
+  -H 'Content-Type: application/json' \
+  -d @- <<JSON | jq_or_cat
+{
+  "repo": "${GH_REPO}",
+  "sha": "${GH_SHA}"
+}
 JSON
 echo "==> Done."
