@@ -17,3 +17,12 @@ cd frontend
 npm run dev
 
 ```
+
+## Deploy
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now drs-frontend
+systemctl status drs-frontend
+journalctl -u drs-frontend -f
+```

@@ -1,7 +1,8 @@
 // src/components/Header.tsx
-import { Box, Text, Image, Paper, Group } from '@mantine/core';
+import { Box, Text, Image, Paper } from '@mantine/core';
 import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from './ThemeToggle';
+import bannerUrl from '@/assets/banner.png';
 
 export default function Header() {
   const { isDarkMode } = useTheme();
@@ -80,7 +81,7 @@ export default function Header() {
           }}
         >
           <Image 
-            src="/banner.png" 
+            src={bannerUrl} alt="banner" 
             h="85%" 
             w="auto" 
             fit="contain"

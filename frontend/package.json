@@ -7,18 +7,26 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start-serve": "serve -s dist -l tcp://0.0.0.0:3173 --no-clipboard",
+    "start-express": "node server.js"
   },
   "dependencies": {
     "@mantine/core": "^8.2.8",
     "@mantine/hooks": "^8.2.8",
     "@mantine/notifications": "^8.2.8",
     "@tabler/icons-react": "^3.34.1",
+    "compression": "^1.8.1",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@types/compression": "^1.8.1",
+    "@types/express": "^5.0.3",
+    "@types/helmet": "^0.0.48",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.0",
@@ -26,6 +34,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "serve": "^14.2.5",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",
     "vite": "^7.1.2"
