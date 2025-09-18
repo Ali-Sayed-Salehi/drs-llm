@@ -1,6 +1,3 @@
-from .logging_setup import setup_logging
-setup_logging()
-
 from contextlib import asynccontextmanager
 import asyncio
 from fastapi import FastAPI
@@ -11,6 +8,9 @@ from .schemas import PredictRequest, PredictResponse
 from .inference import score_commit
 from .settings import settings
 from .model_hf import get_classifier
+
+from .logging_setup import setup_logging
+setup_logging()
 
 log = logging.getLogger(__name__)
 

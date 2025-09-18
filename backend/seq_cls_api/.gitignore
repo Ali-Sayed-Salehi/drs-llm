@@ -1,0 +1,23 @@
+# python venv
+venv/
+__pychache__
+*.pyc
+*.pyo
+.DS_store
+
+# IDE files
+.vscode/
+.idea/
+
+
+# other
+/secrets/*
+!secrets/.env.example
+docker_jobs/
+.nfs*
+
+# cache
+.cache
+.nv
+.triton
+.bash_history

@@ -1,19 +1,14 @@
-# DRS-LLM API
-
+# DRS-LLM
 
 ## How to run api
 ```bash
-cd docker
-docker compose build
-docker compose up -d drs-llm-environment
-
-../test_api.sh
-
+cd backend/seq_cls_api/
+docker compose up -d --build
+./test_api.sh
 ```
 
 ## How to run frontend
 ```bash
 cd frontend
-npm run dev
-
+docker compose up -d --build
 ```

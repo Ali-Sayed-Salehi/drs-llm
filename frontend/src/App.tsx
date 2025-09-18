@@ -1,5 +1,5 @@
 // src/App.tsx
-import { Container, Stack, Paper, Box, Title } from '@mantine/core';
+import { Container, Stack, Paper, Box } from '@mantine/core';
 import { useTheme } from './contexts/ThemeContext';
 import Header from './components/Header';
 import Health from './components/Health';

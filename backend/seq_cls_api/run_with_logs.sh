@@ -16,4 +16,4 @@ log_file="$LOG_DIR/${script_base}_${timestamp}.log"
 
 echo "Logging to: $log_file"
 
-exec "./docker/${SCRIPT_NAME}" 2>&1 | tee "$log_file"
+exec "./${SCRIPT_NAME}" 2>&1 | tee "$log_file"
