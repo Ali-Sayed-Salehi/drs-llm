@@ -11,8 +11,6 @@ __pychache__/
 
 
 # other
-/secrets/*
-!secrets/.env.example
 /docker_jobs
 .nfs*
 
