@@ -1,0 +1,24 @@
+services:
+  drs-seq-cls-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UID: 23519
+        GID: 6000
+        USERNAME: app
+    image: drs-seq-cls-api:latest
+    container_name: drs-seq-cls-api
+    working_dir: /workspace
+    environment:
+      - HOME=/workspace
+      - NVIDIA_VISIBLE_DEVICES=1
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    volumes:
+      - ./:/workspace
+      - ../../../perf-pilot/LLMs:/LLMs:ro
+    # ports:
+    #   - "8080:8080"
+    runtime: nvidia
+    network_mode: host
+    command: ["./run_with_logs.sh"]

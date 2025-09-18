@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  drs-frontend:
+    build:
+      context: .                 # <-- frontend/ (this folder)
+      dockerfile: Dockerfile
+    image: drs-frontend:latest
+    container_name: drs-frontend
+    environment:
+      NODE_ENV: production
+      PORT: "3173"
+      HOST: "0.0.0.0"
+    # ports:
+    #   - "3173:3173"
+    restart: unless-stopped
+    network_mode: host
