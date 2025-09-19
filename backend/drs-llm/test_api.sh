@@ -111,7 +111,7 @@ test_clm() {
 }
 
 # ---- Run both suites ----
-# test_seq_cls
+test_seq_cls
 test_clm
 
 echo
