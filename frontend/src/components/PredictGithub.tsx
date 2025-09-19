@@ -19,8 +19,8 @@ import PredictButton from './PredictButton';
 export default function PredictGithub() {
   const { isDarkMode } = useTheme();
 
-  const [repo, setRepo] = useState('');
-  const [sha, setSha] = useState('');
+  const [repo, setRepo] = useState('facebook/react');
+  const [sha, setSha] = useState('16ff29d2780784ce51f5e66edf08cee9785444cc');
 
   const [isPending, setPending] = useState(false);
   const [error, setError] = useState<Error | undefined>();
