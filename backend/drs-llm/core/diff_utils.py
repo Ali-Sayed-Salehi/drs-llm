@@ -1,7 +1,39 @@
+# app/utils.py
+
 import re
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 HUNK_RE = re.compile(r'^@@ -(?P<ol>\d+)(?:,(?P<oc>\d+))? \+(?P<nl>\d+)(?:,(?P<nc>\d+))? @@')
+
+def clean_commit_message(raw_message: str) -> str:
+    """
+    Normalize/clean a commit message:
+      - Remove common JIRA-style prefixes (e.g., "ABC-123: ..." or "[ABC-123] ...").
+      - Replace ticket references (JIRA, #123) with 'some ticket'.
+      - Strip HTML-like tags.
+      - Collapse whitespace and blank lines.
+    """
+    if not raw_message:
+        return ""
+
+    lines = raw_message.splitlines()
+    # Drop svn noise and blanks; trim spaces
+    lines = [ln.strip() for ln in lines if ln.strip() and not ln.strip().startswith("git-svn-id:")]
+
+    cleaned: List[str] = []
+    for line in lines:
+        # Drop leading ticket prefix like "[ABC-123]; ", "ABC-123 ", etc.
+        line = re.sub(r"^(\[?[A-Z]+-\d+\]?;?\s*)", "", line)
+        # Replace inline ticket references
+        line = re.sub(r"\[[A-Z]+-\d+\]", "some ticket", line)
+        line = re.sub(r"#\d+", "some ticket", line)
+        line = re.sub(r"\b[A-Z]+-\d+\b", "some ticket", line)
+        # Strip HTML-ish tags
+        line = re.sub(r"<[^>]+>", "", line)
+        cleaned.append(line.strip())
+
+    return " ".join(cleaned).strip()
+
 
 def validate_unified_diff(diff_string: str) -> Tuple[bool, List[str]]:
     """
@@ -100,26 +132,37 @@ def validate_unified_diff(diff_string: str) -> Tuple[bool, List[str]]:
     return (len(issues) == 0), issues
 
 
-def diff_to_structured_xml(diff_string: str, *, strict: bool = True) -> str:
+def diff_to_structured_xml(diff_string: str,
+                           commit_message: Optional[str] = None,
+                           *,
+                           strict: bool = True) -> str:
     """
-    Converts a multi-file unified diff string into structured XML-like format.
+    Converts a multi-file unified diff string + optional commit message into structured XML-like format.
 
     - Requires proper unified diff hunks (@@ ... @@) unless the change is a rename/binary.
     - When strict=True, raises ValueError on malformed inputs (recommended).
       When strict=False, emits issues at the top of the output inside <WARN>.
+    - If commit_message is provided, it is cleaned and emitted as <COMMIT_MESSAGE>...</COMMIT_MESSAGE>
+      at the top of the output.
     """
     ok, issues = validate_unified_diff(diff_string)
     if strict and not ok:
         raise ValueError("Malformed diff:\n- " + "\n- ".join(issues))
 
     lines = diff_string.strip().splitlines()
-    output = []
+    output: List[str] = []
 
+    # 1) Commit message, if any
+    if commit_message is not None:
+        output.append(f"<COMMIT_MESSAGE>{clean_commit_message(commit_message)}</COMMIT_MESSAGE>\n")
+
+    # 2) Warnings (non-strict mode)
     if not ok and not strict:
         output.append("<WARN>")
         output.extend(f"  {msg}" for msg in issues)
         output.append("</WARN>")
 
+    # 3) Per-file parsing (unchanged logic with light refactors)
     current_file = None
     current_block_type = None
     current_block_lines: List[str] = []
@@ -152,7 +195,7 @@ def diff_to_structured_xml(diff_string: str, *, strict: bool = True) -> str:
                 output.append(f"  File renamed from {rename_from}.")
             elif pending_binary_status:
                 output.append(f"  Binary file {pending_binary_status}.")
-            output.append(f"</FILE>")
+            output.append("</FILE>\n")
         # reset state
         current_file = None
         is_file_added = False
@@ -172,7 +215,7 @@ def diff_to_structured_xml(diff_string: str, *, strict: bool = True) -> str:
                 current_file = m.group(2)
             else:
                 current_file = None
-            output.append(f"<FILE>")
+            output.append("<FILE>")
             output.append(f"  {current_file or '?'}")
             continue
 
@@ -186,7 +229,7 @@ def diff_to_structured_xml(diff_string: str, *, strict: bool = True) -> str:
             pending_rename = True
             if not current_file:
                 current_file = rename_to
-                output.append(f"<FILE>")
+                output.append("<FILE>")
                 output.append(f"  {current_file}")
             continue
 
