@@ -1,9 +1,10 @@
 // src/App.tsx
-import { Container, Stack, Paper, Box } from '@mantine/core';
+import { Container, Stack, Paper, Box, Tabs } from '@mantine/core';
 import { useTheme } from './contexts/ThemeContext';
 import Header from './components/Header';
 import Health from './components/Health';
 import Predict from './components/Predict';
+import PredictGithub from './components/PredictGithub'; // NEW
 
 export default function App() {
   const { isDarkMode } = useTheme();
@@ -22,6 +23,47 @@ export default function App() {
         <Stack gap="2.5rem">
           <Header />
 
+          {/* Main Content Section */}
+          <Paper
+            withBorder
+            radius="xl"
+            shadow="0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+            style={{
+              backgroundColor: isDarkMode ? '#1e293b' : 'white',
+              border: `1px solid ${isDarkMode ? '#374151' : '#e2e8f0'}`,
+            }}
+          >
+            <Box p="xl">
+              
+              <Tabs
+                defaultValue="manual"
+                keepMounted={false}
+                color="blue"
+                styles={{
+                  // just make labels brighter in dark mode; otherwise use defaults
+                  tab: {
+                    color: isDarkMode ? '#a4a5a8ff' : undefined,
+                    fontWeight: 600,
+                  },
+                }}
+              >
+                <Tabs.List>
+                  <Tabs.Tab value="manual">Manual Diff</Tabs.Tab>
+                  <Tabs.Tab value="github">GitHub Commit</Tabs.Tab>
+                </Tabs.List>
+
+                <Tabs.Panel value="manual" pt="xl">
+                  <Predict />
+                </Tabs.Panel>
+
+                <Tabs.Panel value="github" pt="xl">
+                  <PredictGithub />
+                </Tabs.Panel>
+              </Tabs>
+
+            </Box>
+          </Paper>
+
           {/* System Status Section */}
           <Paper
             p="xl"
@@ -34,22 +76,6 @@ export default function App() {
             }}
           >
             <Health />
-          </Paper>
-
-          {/* Main Content Section */}
-          <Paper
-            withBorder
-            radius="xl"
-            shadow="0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-            style={{
-              backgroundColor: isDarkMode ? '#1e293b' : 'white',
-              border: `1px solid ${isDarkMode ? '#374151' : '#e2e8f0'}`,
-            }}
-          >
-            <Box p="xl">
-              {/* Unified Predict Section */}
-              <Predict />
-            </Box>
           </Paper>
         </Stack>
       </Container>

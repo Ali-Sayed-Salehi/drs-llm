@@ -7,28 +7,29 @@ import {
   Stack,
   Text,
   Textarea,
-  Divider,
   ActionIcon,
   Title,
   ScrollArea,
   Badge,
   Box,
 } from '@mantine/core';
-import { IconTrash, IconPlus, IconBrain, IconCode, IconMessage } from '@tabler/icons-react';
+import { IconTrash, IconPlus, IconCode, IconMessage } from '@tabler/icons-react';
 import { usePredict } from '../hooks/usePredict';
 import { usePredictBatch } from '../hooks/usePredictBatch';
 import type { PredictRequest } from '../types';
 import CONSTANTS from '../constants';
 import { useTheme } from '../contexts/ThemeContext';
+import AnalysisResults from './AnalysisResults';
+import PredictButton from './PredictButton';
 
 type Item = { id: string; commit_message: string; code_diff: string };
 
 export default function Predict() {
   const { isDarkMode } = useTheme();
 
+  // Default to SINGLE item (not batch)
   const [items, setItems] = useState<Item[]>([
     { id: crypto.randomUUID(), commit_message: CONSTANTS.DEFAULT_COMMIT_1, code_diff: CONSTANTS.DEFAULT_DIFF_1 },
-    { id: crypto.randomUUID(), commit_message: CONSTANTS.DEFAULT_COMMIT_2, code_diff: CONSTANTS.DEFAULT_DIFF_2 },
   ]);
 
   const {
@@ -82,7 +83,7 @@ export default function Predict() {
       {/* Header Section */}
       <Group justify="space-between" align="center">
         <Box>
-          <Title order={3} style={{color: isDarkMode ? '#cbd5e1' : '#475569', fontWeight: 600, marginBottom: '0.5rem' }}>
+          <Title order={3} style={{ color: isDarkMode ? '#cbd5e1' : '#475569', fontWeight: 600, marginBottom: '0.5rem' }}>
             {isBatch ? 'Batch Analysis' : 'Single Analysis'}
           </Title>
           <Text size="sm" c="gray.6">
@@ -224,131 +225,19 @@ export default function Predict() {
         </Stack>
       </ScrollArea.Autosize>
 
-      {/* Action Section */}
-      <Group gap="md" align="flex-start">
-        <Button
-          leftSection={<IconBrain size={18} />}
-          onClick={submit}
-          loading={activePending}
-          disabled={items.length === 0}
-          size="lg"
-          style={{
-            fontWeight: 600,
-            padding: '0.75rem 2rem',
-          }}
-        >
-          {activePending
-            ? 'Analyzing...'
-            : isBatch
-            ? `Analyze ${items.length} Items`
-            : 'Analyze Risk'}
-        </Button>
-
-        {activePending && (
-          <Box
-            p="md"
-            style={{
-              backgroundColor: '#f0f9ff',
-              border: '1px solid #bae6fd',
-              borderRadius: '8px',
-            }}
-          >
-            <Text size="sm" style={{ color: '#0369a1' }}>
-              {isBatch ? `Processing ${items.length} items...` : 'Processing 1 item...'}
-            </Text>
-          </Box>
-        )}
-
-        {activeIsError && (
-          <Box
-            p="md"
-            style={{
-              backgroundColor: '#fef2f2',
-              border: '1px solid #fecaca',
-              borderRadius: '8px',
-            }}
-          >
-            <Text size="sm" style={{ color: '#dc2626' }}>
-              {activeError?.message}
-            </Text>
-          </Box>
-        )}
-      </Group>
+      <PredictButton
+        onClick={submit}
+        loading={activePending}
+        disabled={items.length === 0}
+        idleLabel={isBatch ? `Analyze ${items.length} Items` : 'Analyze Risk'}
+        loadingLabel="Analyzing..."
+        pendingMessage={isBatch ? `Processing ${items.length} items...` : 'Processing 1 item...'}
+        errorMessage={activeIsError ? activeError?.message : undefined}
+        size="lg"
+      />
 
       {/* Results Section */}
-      {Array.isArray(results) && results.length > 0 && (
-        <>
-          <Divider my="lg" style={{ borderColor: '#e2e8f0' }} />
-          <Box>
-            <Group gap="sm" mb="lg">
-              <IconBrain size={20} color="#3b82f6" />
-              <Title order={4} style={{ color: isDarkMode ? '#cbd5e1' : '#4b5563', fontWeight: 600 }}>
-                Analysis Results
-              </Title>
-            </Group>
-            <Stack gap="md">
-              {results.map((r, i) => (
-                <Card
-                  key={i}
-                  withBorder
-                  radius="lg"
-                  shadow="0 2px 4px rgba(0, 0, 0, 0.05)"
-                  style={{
-                    backgroundColor: isDarkMode ? '#1e293b' : 'white',
-                    border: `1px solid ${isDarkMode ? '#374151' : '#e2e8f0'}`,
-                  }}
-                >
-                  <Stack gap="md">
-                    <Group justify="space-between">
-                      <Badge variant="light" color="blue" style={{ fontWeight: 500 }}>
-                        Item #{i + 1}
-                      </Badge>
-                    </Group>
-                    <Group gap="lg">
-                      <Box>
-                        <Text
-                          size="sm"
-                          style={{ color: isDarkMode ? '#cbd5e1' : '#4b5563' }}
-                          mb={4}
-                        >
-                          Risk Level
-                        </Text>
-                        <Badge
-                          color={r.label === 'POSITIVE' ? 'red' : 'green'}
-                          size="md"
-                          variant="light"
-                          style={{
-                            fontWeight: 600,
-                            padding: '0.4rem 0.8rem',
-                          }}
-                        >
-                          {r.label === 'POSITIVE' ? 'High Risk' : 'Low Risk'}
-                        </Badge>
-                      </Box>
-                      <Box>
-                        <Text
-                          size="sm"
-                          style={{ color: isDarkMode ? '#cbd5e1' : '#4b5563' }}
-                          mb={4}
-                        >
-                          Confidence
-                        </Text>
-                        <Text
-                          fw={700}
-                          size="md"
-                          style={{ color: isDarkMode ? '#f8fafc' : '#1f2937' }}
-                        >
-                          {(r.confidence * 100).toFixed(1)}%
-                        </Text>
-                      </Box>
-                    </Group>
-                  </Stack>
-                </Card>
-              ))}
-            </Stack>
-          </Box>
-        </>
-      )}
+      <AnalysisResults results={results} title="Analysis Results" />
     </Stack>
   );
 }
