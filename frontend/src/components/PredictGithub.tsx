@@ -100,7 +100,7 @@ export default function PredictGithub() {
               </Text>
             </Group>
             <TextInput
-              placeholder="e.g., b4e7a70b86dd8e6d7d7a0c85be8b02c92bf2a0b7"
+              placeholder="e.g., 16ff29d2780784ce51f5e66edf08cee9785444cc"
               value={sha}
               onChange={(e) => setSha(e.currentTarget.value)}
               styles={{
@@ -121,7 +121,7 @@ export default function PredictGithub() {
                 disabled={!canSubmit}
                 idleLabel="Analyze GitHub Commit"
                 loadingLabel="Analyzing..."
-                pendingMessage="Fetching commit & diff from GitHub..."
+                pendingMessage="Fetching commit & Analyzing..."
                 errorMessage={error?.message}
                 size="md"
             />

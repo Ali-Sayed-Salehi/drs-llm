@@ -36,11 +36,10 @@ export default function App() {
             <Box p="xl">
               
               <Tabs
-                defaultValue="manual"
+                defaultValue="github"
                 keepMounted={false}
                 color="blue"
                 styles={{
-                  // just make labels brighter in dark mode; otherwise use defaults
                   tab: {
                     color: isDarkMode ? '#a4a5a8ff' : undefined,
                     fontWeight: 600,
@@ -48,17 +47,18 @@ export default function App() {
                 }}
               >
                 <Tabs.List>
-                  <Tabs.Tab value="manual">Manual Diff</Tabs.Tab>
                   <Tabs.Tab value="github">GitHub Commit</Tabs.Tab>
+                  <Tabs.Tab value="manual">Manual Diff</Tabs.Tab>
                 </Tabs.List>
+
+                <Tabs.Panel value="github" pt="xl">
+                  <PredictGithub />
+                </Tabs.Panel>
 
                 <Tabs.Panel value="manual" pt="xl">
                   <Predict />
                 </Tabs.Panel>
 
-                <Tabs.Panel value="github" pt="xl">
-                  <PredictGithub />
-                </Tabs.Panel>
               </Tabs>
 
             </Box>

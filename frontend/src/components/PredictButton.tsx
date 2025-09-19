@@ -6,11 +6,11 @@ type Props = {
   onClick: () => void;
   loading?: boolean;
   disabled?: boolean;
-  idleLabel: string;        // e.g., "Analyze Risk"
-  loadingLabel?: string;    // default "Analyzing..."
-  pendingMessage?: string;  // shown while loading
-  errorMessage?: string;    // shown when not loading
-  size?: 'md' | 'lg';       // default 'lg'
+  idleLabel: string;
+  loadingLabel?: string;
+  pendingMessage?: string;
+  errorMessage?: string;
+  size?: 'md' | 'lg';
 };
 
 export default function PredictButton({
