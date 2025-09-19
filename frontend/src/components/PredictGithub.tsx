@@ -54,7 +54,7 @@ export default function PredictGithub() {
           GitHub Commit Analysis
         </Title>
         <Text size="sm" c="gray.6">
-          Fetch commit message and unified diff from GitHub by repository and commit SHA
+          Fetch commit from GitHub and analyze the risk
         </Text>
       </Box>
 
@@ -77,7 +77,7 @@ export default function PredictGithub() {
               </Text>
             </Group>
             <TextInput
-              placeholder="e.g., octocat/Hello-World"
+              placeholder="e.g., facebook/react"
               value={repo}
               onChange={(e) => setRepo(e.currentTarget.value)}
               styles={{
@@ -100,7 +100,7 @@ export default function PredictGithub() {
               </Text>
             </Group>
             <TextInput
-              placeholder="e.g., 7fd1a60b01f91b314f59955a4e4d4e80d8edf11a"
+              placeholder="e.g., b4e7a70b86dd8e6d7d7a0c85be8b02c92bf2a0b7"
               value={sha}
               onChange={(e) => setSha(e.currentTarget.value)}
               styles={{
