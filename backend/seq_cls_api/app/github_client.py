@@ -53,7 +53,6 @@ def fetch_commit_message_and_diff(repo_full: str, sha: str) -> Tuple[str, str]:
             raise HTTPException(status_code=502, detail="Commit JSON missing 'commit.message'")
 
         # 2) Diff for unified patch (same endpoint; different Accept header)
-        # NOTE: This is a unified diff suitable for your diff parser
         r2 = s.get(url, headers={"Accept": "application/vnd.github.v3.diff"}, timeout=timeout)
         if not r2.ok:
             log.error("GitHub Diff error %s: %s", r2.status_code, r2.text[:500])

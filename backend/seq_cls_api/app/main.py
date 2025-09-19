@@ -65,12 +65,10 @@ def predict_by_sha(req: PredictBySHARequest):
     """
     commit_message, code_diff = fetch_commit_message_and_diff(req.repo, req.sha)
 
-    # Optional: validate/normalize diff before inference (your utils already do strict checking)
     try:
-        # This will raise on malformed diffs if you keep strict=True inside build_text path
+        # This will raise on malformed diffs
         label, confidence = score_commit(commit_message, code_diff)
     except ValueError as e:
-        # Your diff_to_structured_xml(strict=True) could raise here
         raise HTTPException(status_code=422, detail=f"Malformed diff: {e}") from e
 
     log.info("label: %s, confidence: %f (repo=%s sha=%s)", label, confidence, req.repo, req.sha)
