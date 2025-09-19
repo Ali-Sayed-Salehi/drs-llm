@@ -1,6 +1,6 @@
 from .model_hf import get_classifier
 from .settings import settings
-from .utils import *
+from .utils import diff_to_structured_xml
 
 import logging
 log = logging.getLogger(__name__)
