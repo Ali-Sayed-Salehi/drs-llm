@@ -1,17 +1,24 @@
-version: "3.9"
-
+# frontend/docker-compose.yml
 services:
   drs-frontend:
     build:
-      context: .                 # <-- frontend/ (this folder)
+      context: .
       dockerfile: Dockerfile
+      args:
+        UID: "${DOCKER_UID:-23519}"
+        GID: "${DOCKER_GID:-6000}"
+        USERNAME: ${DOCKER_USERNAME:-app}
     image: drs-frontend:latest
-    container_name: drs-frontend
+    depends_on:
+      - drs-gateway-api
     environment:
-      NODE_ENV: production
-      PORT: "3173"
-      HOST: "0.0.0.0"
-    # ports:
-    #   - "3173:3173"
+      NODE_ENV: "${FRONTEND_NODE_ENV:-production}"
+      PORT: "${FRONTEND_PORT:-3173}"
+      HOST: "${FRONTEND_HOST:-0.0.0.0}"
+    user: "${DOCKER_UID:-23519}:${DOCKER_GID:-6000}"
+    volumes:
+      - ../../logs:/workspace/logs:z
+      - ../scripts:/workspace/scripts:ro
     restart: unless-stopped
     network_mode: host
+    command: ["workspace/scripts/run_with_logs.sh"]
