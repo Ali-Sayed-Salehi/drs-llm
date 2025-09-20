@@ -1,4 +1,4 @@
-# backend/scripts/run_with_logs.sh
+# frontend/scripts/run_with_logs.sh
 
 #!/usr/bin/env bash
 set -euo pipefail
@@ -14,4 +14,4 @@ log_file="$LOG_DIR/${LOG_PREFIX}_${timestamp}.log"
 
 echo "Logging to: $log_file"
 
-exec "workspace/scripts/${SCRIPT_NAME}" 2>&1 | tee -a "$log_file"
+exec "/workspace/scripts/${SCRIPT_NAME}" 2>&1 | tee -a "$log_file"

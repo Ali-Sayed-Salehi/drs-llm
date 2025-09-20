@@ -8,6 +8,8 @@ services:
         UID: "${DOCKER_UID:-23519}"
         GID: "${DOCKER_GID:-6000}"
         USERNAME: ${DOCKER_USERNAME:-app}
+        VITE_API_BASE: "${FRONTEND_VITE_API_BASE:-http://localhost:8083}"
+        VITE_SEQ_CLS_API_PATH: "${FRONTEND_VITE_SEQ_CLS_API_PATH:-/seq-cls}"
     image: drs-frontend:latest
     depends_on:
       - drs-gateway-api
@@ -15,11 +17,9 @@ services:
       NODE_ENV: "${FRONTEND_NODE_ENV:-production}"
       PORT: "${FRONTEND_PORT:-3173}"
       HOST: "${FRONTEND_HOST:-0.0.0.0}"
-      VITE_API_BASE: "${FRONTEND_VITE_API_BASE:-http://localhost:8083/}"  
     user: "${DOCKER_UID:-23519}:${DOCKER_GID:-6000}"
     volumes:
-      - ../../logs:/workspace/logs
-      - ../scripts:/workspace/scripts:ro
-    restart: unless-stopped
+      - ${REPO_ROOT}/logs:/workspace/logs
+      - ${REPO_ROOT}/frontend/scripts:/workspace/scripts:ro
     network_mode: host
-    command: ["workspace/scripts/run_with_logs.sh"]
+    command: ["/workspace/scripts/run_with_logs.sh"]

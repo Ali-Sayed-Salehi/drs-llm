@@ -84,8 +84,8 @@ cd deploy
 # frontend only
 ./compose.sh test up -d drs-frontend --no-deps
 
-# Bring up only the llm apis
-./compose.sh test up -d drs-seq-cls-api drs-clm-api
+# Bring up the whole stack with only the seq cls api
+./compose.sh test up -d drs-seq-cls-api drs-gateway-api drs-frontend --no-deps
 
 # Bring up PROD
 ./compose.sh prod up -d

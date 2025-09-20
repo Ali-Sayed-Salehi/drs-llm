@@ -22,7 +22,7 @@ services:
       LOG_PREFIX: "gateway-api"
     user: "${DOCKER_UID:-23519}:${DOCKER_GID:-6000}"
     volumes:
-      - ../../logs:/workspace/logs
-      - ../scripts:/workspace/scripts:ro
+      - ${REPO_ROOT}/logs:/workspace/logs
+      - ${REPO_ROOT}/backend/scripts:/workspace/scripts:ro
     network_mode: host
     command: ["/workspace/scripts/run_with_logs.sh"]

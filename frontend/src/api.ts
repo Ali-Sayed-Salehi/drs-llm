@@ -1,9 +1,9 @@
 // src/api.ts
 import type { PredictRequest, PredictResponse, HealthResponse, PredictBySHARequest } from "./types";
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8080";
-const SEQ_CLS_API_PATH = import.meta.env.SEQ_CLS_API_PATH ?? "/seq-cls";
-// const CLM_API_PATH = import.meta.env.CLM_API_PATH ?? "/clm";
+const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8083";
+const SEQ_CLS_API_PATH = import.meta.env.VITE_SEQ_CLS_API_PATH ?? "/seq-cls";
+// const CLM_API_PATH = import.meta.env.VITE_CLM_API_PATH ?? "/clm";
 
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const headers = new Headers(init?.headers);
