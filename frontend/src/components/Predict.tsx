@@ -16,11 +16,12 @@ import {
 import { IconTrash, IconPlus, IconCode, IconMessage } from '@tabler/icons-react';
 import { usePredict } from '../hooks/usePredict';
 import { usePredictBatch } from '../hooks/usePredictBatch';
-import type { PredictRequest } from '../types';
+import type { PredictRequest, PredictResponse } from '../types';
 import CONSTANTS from '../constants';
 import { useTheme } from '../contexts/ThemeContext';
 import AnalysisResults from './AnalysisResults';
 import PredictButton from './PredictButton';
+import { api } from '../api';
 
 type Item = { id: string; commit_message: string; code_diff: string };
 
@@ -32,6 +33,12 @@ export default function Predict() {
     { id: crypto.randomUUID(), commit_message: CONSTANTS.DEFAULT_COMMIT_1, code_diff: CONSTANTS.DEFAULT_DIFF_1 },
   ]);
 
+  // Optional CLM explanation
+  const [withExplanation, setWithExplanation] = useState<boolean>(false);
+  const [explanations, setExplanations] = useState<string[] | null>(null);
+  const [isExplaining, setIsExplaining] = useState<boolean>(false);
+
+  // seq-cls hooks
   const {
     data: sData,
     isPending: sPending,
@@ -50,11 +57,11 @@ export default function Predict() {
 
   const isBatch = items.length > 1;
 
-  const activePending = isBatch ? bPending : sPending;
+  const activePending = (isBatch ? bPending : sPending) || isExplaining;
   const activeIsError = isBatch ? bIsError : sIsError;
   const activeError = (isBatch ? bError : sError) as Error | undefined;
 
-  const results = useMemo(() => {
+  const results: PredictResponse[] = useMemo(() => {
     if (isBatch) return Array.isArray(bData) ? bData : [];
     return sData ? [sData] : [];
   }, [isBatch, bData, sData]);
@@ -67,14 +74,41 @@ export default function Predict() {
   const update = (id: string, field: keyof PredictRequest, v: string) =>
     setItems((xs) => xs.map((x) => (x.id === id ? { ...x, [field]: v } : x)));
 
-  const submit = () => {
+  const runClmExplanations = async (payloads: PredictRequest[]) => {
+    setIsExplaining(true);
+    try {
+      const texts = await Promise.all(payloads.map((p) => api.clmPredict(p)));
+      setExplanations(texts);
+    } finally {
+      setIsExplaining(false);
+    }
+  };
+
+  const submit = async () => {
     if (items.length === 0) return;
+
+    setExplanations(null); // reset old explanations
+
     if (isBatch) {
       const payload = items.map(({ commit_message, code_diff }) => ({ commit_message, code_diff }));
-      bMutate(payload);
+      await bMutate(payload);
+      if (withExplanation) {
+        try {
+          await runClmExplanations(payload);
+        } catch {
+          // swallow CLM errors for now; optionally surface in UI
+        }
+      }
     } else {
       const { commit_message, code_diff } = items[0];
-      sMutate({ commit_message, code_diff });
+      await sMutate({ commit_message, code_diff });
+      if (withExplanation) {
+        try {
+          await runClmExplanations([{ commit_message, code_diff }]);
+        } catch {
+          // swallow CLM errors for now
+        }
+      }
     }
   };
 
@@ -83,7 +117,10 @@ export default function Predict() {
       {/* Header Section */}
       <Group justify="space-between" align="center">
         <Box>
-          <Title order={3} style={{ color: isDarkMode ? '#cbd5e1' : '#475569', fontWeight: 600, marginBottom: '0.5rem' }}>
+          <Title
+            order={3}
+            style={{ color: isDarkMode ? '#cbd5e1' : '#475569', fontWeight: 600, marginBottom: '0.5rem' }}
+          >
             {isBatch ? 'Batch Analysis' : 'Single Analysis'}
           </Title>
           <Text size="sm" c="gray.6">
@@ -168,13 +205,8 @@ export default function Predict() {
                           borderColor: isDarkMode ? '#475569' : '#d1d5db',
                           borderRadius: '8px',
                           fontSize: '0.95rem',
-                          '&::placeholder': {
-                            color: isDarkMode ? '#9ca3af' : '#6b7280',
-                          },
-                          '&:focus': {
-                            borderColor: '#3b82f6',
-                            boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.25)',
-                          },
+                          '&::placeholder': { color: isDarkMode ? '#9ca3af' : '#6b7280' },
+                          '&:focus': { borderColor: '#3b82f6', boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.25)' },
                         },
                       }}
                     />
@@ -207,13 +239,8 @@ export default function Predict() {
                           borderRadius: '8px',
                           fontSize: '0.9rem',
                           lineHeight: 1.5,
-                          '&::placeholder': {
-                            color: isDarkMode ? '#9ca3af' : '#6b7280',
-                          },
-                          '&:focus': {
-                            borderColor: '#3b82f6',
-                            boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.25)',
-                          },
+                          '&::placeholder': { color: isDarkMode ? '#9ca3af' : '#6b7280' },
+                          '&:focus': { borderColor: '#3b82f6', boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.25)' },
                         },
                       }}
                     />
@@ -225,19 +252,35 @@ export default function Predict() {
         </Stack>
       </ScrollArea.Autosize>
 
+      {/* Analyze row: button + checkbox */}
       <PredictButton
         onClick={submit}
         loading={activePending}
         disabled={items.length === 0}
         idleLabel={isBatch ? `Analyze ${items.length} Items` : 'Analyze Risk'}
-        loadingLabel="Analyzing..."
-        pendingMessage={isBatch ? `Processing ${items.length} items...` : 'Processing 1 item...'}
+        loadingLabel={isExplaining ? 'Explaining…' : 'Analyzing...'}
+        pendingMessage={
+          activePending
+            ? isBatch
+              ? `Processing ${items.length} item(s)${withExplanation ? ' + generating explanations' : ''}...`
+              : `Processing 1 item${withExplanation ? ' + generating explanation' : ''}...`
+            : undefined
+        }
         errorMessage={activeIsError ? activeError?.message : undefined}
         size="lg"
+        showExplainToggle
+        explainChecked={withExplanation}
+        onExplainChange={setWithExplanation}
+        explainLabel="Explain with CLM"
       />
 
       {/* Results Section */}
-      <AnalysisResults results={results} title="Analysis Results" />
+      <AnalysisResults
+        results={results}
+        explanations={withExplanation ? (explanations ?? []) : []}
+        explainLoading={withExplanation && isExplaining}
+        title="Analysis Results"
+      />
     </Stack>
   );
 }

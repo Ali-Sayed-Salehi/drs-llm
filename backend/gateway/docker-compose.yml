@@ -1,0 +1,28 @@
+# backend/gateway/docker-compose.yml
+
+services:
+  drs-gateway-api:
+    build:
+      context: ${REPO_ROOT}/backend/gateway
+      dockerfile: Dockerfile
+      args:
+        UID: "${DOCKER_UID:-23519}"
+        GID: "${DOCKER_GID:-6000}"
+        USERNAME: ${DOCKER_USERNAME:-app}
+    image: gateway:latest
+    depends_on:
+      - drs-seq-cls-api
+      - drs-clm-api
+    environment:
+      SEQ_BASE: "${SEQ_BASE:-http://localhost:${SEQCLS_PORT:-8084}}"
+      CLM_BASE: "${CLM_BASE:-http://localhost:${CLM_PORT:-8085}}"
+      APP_MODULE: "${GATEWAY_APP_MODULE:-app:app}"
+      HOST: "${GATEWAY_HOST:-0.0.0.0}"
+      PORT: "${GATEWAY_PORT:-8083}"
+      LOG_PREFIX: "gateway-api"
+    user: "${DOCKER_UID:-23519}:${DOCKER_GID:-6000}"
+    volumes:
+      - ${REPO_ROOT}/logs:/workspace/logs
+      - ${REPO_ROOT}/backend/scripts:/workspace/scripts:ro
+    network_mode: host
+    command: ["/workspace/scripts/run_with_logs.sh"]

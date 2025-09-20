@@ -10,8 +10,8 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const DIST = path.join(__dirname, 'dist');
-const PORT = process.env.PORT || 3173;
-const HOST = '0.0.0.0';
+const PORT = process.env.PORT || 2173;
+const HOST = process.env.HOST || '0.0.0.0';
 
 // Keep real client IPs when behind nginx
 app.set('trust proxy', true);

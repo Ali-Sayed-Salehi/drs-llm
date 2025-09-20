@@ -1,9 +1,14 @@
+// src/hooks/useHealth.ts
 import { useCallback, useEffect, useRef, useState } from "react";
-import { api } from "../api";
-import type { HealthResponse } from "../types";
+import { api, type GatewayHealth } from "../api";
+
+function isAbortError(err: unknown): boolean {
+  // DOMException with name "AbortError" in browsers
+  return typeof err === "object" && err !== null && "name" in err && (err as { name?: unknown }).name === "AbortError";
+}
 
 export function useHealth() {
-  const [data, setData] = useState<HealthResponse | undefined>();
+  const [data, setData] = useState<GatewayHealth | undefined>();
   const [isLoading, setLoading] = useState(true);
   const [error, setError] = useState<Error | undefined>();
   const abortRef = useRef<AbortController | null>(null);
@@ -11,13 +16,16 @@ export function useHealth() {
   const refetch = useCallback(async () => {
     abortRef.current?.abort();
     abortRef.current = new AbortController();
+
     setLoading(true);
     setError(undefined);
     try {
-      const d = await api.health();
+      const d = await api.health(abortRef.current.signal);
       setData(d);
-    } catch (e) {
-      setError(e as Error);
+    } catch (e: unknown) {
+      if (!isAbortError(e)) {
+        setError(e instanceof Error ? e : new Error(String(e)));
+      }
     } finally {
       setLoading(false);
     }

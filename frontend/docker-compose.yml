@@ -1,17 +1,26 @@
-version: "3.9"
-
+# frontend/docker-compose.yml
 services:
   drs-frontend:
     build:
-      context: .                 # <-- frontend/ (this folder)
+      context: ${REPO_ROOT}/frontend
       dockerfile: Dockerfile
+      args:
+        UID: "${DOCKER_UID:-23519}"
+        GID: "${DOCKER_GID:-6000}"
+        USERNAME: ${DOCKER_USERNAME:-app}
+        VITE_API_BASE: "${FRONTEND_VITE_API_BASE:-http://localhost:8083}"
+        VITE_SEQ_CLS_API_PATH: "${FRONTEND_VITE_SEQ_CLS_API_PATH:-/seq-cls}"
+        VITE_CLM_API_PATH: "${FRONTEND_VITE_CLM_API_PATH:-/clm}"
     image: drs-frontend:latest
-    container_name: drs-frontend
+    depends_on:
+      - drs-gateway-api
     environment:
-      NODE_ENV: production
-      PORT: "3173"
-      HOST: "0.0.0.0"
-    # ports:
-    #   - "3173:3173"
-    restart: unless-stopped
+      NODE_ENV: "${FRONTEND_NODE_ENV:-production}"
+      PORT: "${FRONTEND_PORT:-3173}"
+      HOST: "${FRONTEND_HOST:-0.0.0.0}"
+    user: "${DOCKER_UID:-23519}:${DOCKER_GID:-6000}"
+    volumes:
+      - ${REPO_ROOT}/logs:/workspace/logs
+      - ${REPO_ROOT}/frontend/scripts:/workspace/scripts:ro
     network_mode: host
+    command: ["/workspace/scripts/run_with_logs.sh"]

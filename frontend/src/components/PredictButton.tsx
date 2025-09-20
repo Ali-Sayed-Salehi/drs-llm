@@ -1,6 +1,7 @@
 // src/components/PredictButton.tsx
-import { Button, Group, Box, Text } from '@mantine/core';
+import { Button, Group, Box, Text, Checkbox } from '@mantine/core';
 import { IconBrain } from '@tabler/icons-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Props = {
   onClick: () => void;
@@ -11,6 +12,12 @@ type Props = {
   pendingMessage?: string;
   errorMessage?: string;
   size?: 'md' | 'lg';
+
+  // CLM toggle
+  showExplainToggle?: boolean;
+  explainChecked?: boolean;
+  onExplainChange?: (checked: boolean) => void;
+  explainLabel?: string;
 };
 
 export default function PredictButton({
@@ -22,9 +29,15 @@ export default function PredictButton({
   pendingMessage,
   errorMessage,
   size = 'lg',
+  showExplainToggle = false,
+  explainChecked = false,
+  onExplainChange,
+  explainLabel = 'Explain with CLM',
 }: Props) {
+  const { isDarkMode } = useTheme();
+
   return (
-    <Group gap="md" align="flex-start">
+    <Group gap="md" align="center">
       <Button
         leftSection={<IconBrain size={18} />}
         onClick={onClick}
@@ -36,15 +49,25 @@ export default function PredictButton({
         {loading ? loadingLabel : idleLabel}
       </Button>
 
-      {loading && pendingMessage && (
-        <Box
-          p="md"
-          style={{
-            backgroundColor: '#f0f9ff',
-            border: '1px solid #bae6fd',
-            borderRadius: '8px',
+      {showExplainToggle && (
+        <Checkbox
+          label={explainLabel}
+          checked={explainChecked}
+          onChange={(e) => onExplainChange?.(e.currentTarget.checked)}
+          styles={{
+            root: { alignSelf: 'center' },
+            body: { display: 'flex', alignItems: 'center' },
+            label: {
+              color: isDarkMode ? '#e5e7eb' : '#1f2937',
+              fontWeight: 600,
+              lineHeight: 1,
+            },
           }}
-        >
+        />
+      )}
+
+      {loading && pendingMessage && (
+        <Box p="md" style={{ backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 8 }}>
           <Text size="sm" style={{ color: '#0369a1' }}>
             {pendingMessage}
           </Text>
@@ -52,14 +75,7 @@ export default function PredictButton({
       )}
 
       {!loading && errorMessage && (
-        <Box
-          p="md"
-          style={{
-            backgroundColor: '#fef2f2',
-            border: '1px solid #fecaca',
-            borderRadius: '8px',
-          }}
-        >
+        <Box p="md" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8 }}>
           <Text size="sm" style={{ color: '#dc2626' }}>
             {errorMessage}
           </Text>
