@@ -66,6 +66,9 @@ All the services have docker-compose files. When using the compose.sh script, al
 ```bash
 cd deploy
 
+# Stop running containers
+./compose.sh test down
+
 # Bring up only the backend and also build the images in case of new changes
 ./compose.sh test up -d --build drs-gateway-api
 

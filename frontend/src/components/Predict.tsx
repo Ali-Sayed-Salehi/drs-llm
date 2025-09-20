@@ -252,7 +252,7 @@ export default function Predict() {
         </Stack>
       </ScrollArea.Autosize>
 
-      {/* Analyze row: button + checkbox (checkbox integrated) */}
+      {/* Analyze row: button + checkbox */}
       <PredictButton
         onClick={submit}
         loading={activePending}

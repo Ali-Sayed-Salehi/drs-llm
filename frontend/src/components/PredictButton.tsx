@@ -37,7 +37,6 @@ export default function PredictButton({
   const { isDarkMode } = useTheme();
 
   return (
-    // Center-align so the checkbox sits at the same vertical middle as the button
     <Group gap="md" align="center">
       <Button
         leftSection={<IconBrain size={18} />}
@@ -59,7 +58,7 @@ export default function PredictButton({
             root: { alignSelf: 'center' },
             body: { display: 'flex', alignItems: 'center' },
             label: {
-              color: isDarkMode ? '#e5e7eb' : '#1f2937', // brighter in dark mode
+              color: isDarkMode ? '#e5e7eb' : '#1f2937',
               fontWeight: 600,
               lineHeight: 1,
             },
