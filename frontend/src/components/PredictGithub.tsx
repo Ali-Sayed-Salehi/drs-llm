@@ -1,17 +1,19 @@
+// src/components/PredictGithub.tsx
 import { useState } from 'react';
-import { Card, Group, Stack, Text, Title, Box, TextInput, Checkbox } from '@mantine/core';
+import { Card, Group, Stack, Text, Title, Box, TextInput } from '@mantine/core';
 import { IconBrandGithub, IconHash } from '@tabler/icons-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { api } from '../api';
 import type { PredictResponse } from '../types';
 import AnalysisResults from './AnalysisResults';
 import PredictButton from './PredictButton';
+import CONSTANTS from '../constants';
 
 export default function PredictGithub() {
   const { isDarkMode } = useTheme();
 
-  const [repo, setRepo] = useState('facebook/react');
-  const [sha, setSha] = useState('16ff29d2780784ce51f5e66edf08cee9785444cc');
+  const [repo, setRepo] = useState(CONSTANTS.OWNER_REPO_1);
+  const [sha, setSha] = useState(CONSTANTS.COMMIT_SHA_1);
 
   const [withExplanation, setWithExplanation] = useState(false);
   const [explanation, setExplanation] = useState<string | undefined>();
@@ -75,6 +77,7 @@ export default function PredictGithub() {
         }}
       >
         <Stack gap="lg">
+          {/* Repo */}
           <Box>
             <Group gap="sm" mb="sm">
               <IconBrandGithub size={18} color={isDarkMode ? '#cbd5e1' : '#64748b'} />
@@ -86,9 +89,23 @@ export default function PredictGithub() {
               placeholder="e.g., facebook/react"
               value={repo}
               onChange={(e) => setRepo(e.currentTarget.value)}
+              styles={{
+                input: {
+                  backgroundColor: isDarkMode ? '#0f172a' : 'white',
+                  color: isDarkMode ? '#f1f5f9' : '#1f2937',
+                  borderColor: isDarkMode ? '#475569' : '#d1d5db',
+                  borderRadius: '8px',
+                  '&::placeholder': { color: isDarkMode ? '#9ca3af' : '#6b7280' },
+                  '&:focus': {
+                    borderColor: '#3b82f6',
+                    boxShadow: '0 0 0 3px rgba(59,130,246,.25)',
+                  },
+                },
+              }}
             />
           </Box>
 
+          {/* SHA */}
           <Box>
             <Group gap="sm" mb="sm">
               <IconHash size={18} color={isDarkMode ? '#cbd5e1' : '#64748b'} />
@@ -100,30 +117,41 @@ export default function PredictGithub() {
               placeholder="e.g., 16ff29d2780784ce51f5e66edf08cee9785444cc"
               value={sha}
               onChange={(e) => setSha(e.currentTarget.value)}
+              styles={{
+                input: {
+                  backgroundColor: isDarkMode ? '#0f172a' : 'white',
+                  color: isDarkMode ? '#f1f5f9' : '#1f2937',
+                  borderColor: isDarkMode ? '#475569' : '#d1d5db',
+                  borderRadius: '8px',
+                  '&::placeholder': { color: isDarkMode ? '#9ca3af' : '#6b7280' },
+                  '&:focus': {
+                    borderColor: '#3b82f6',
+                    boxShadow: '0 0 0 3px rgba(59,130,246,.25)',
+                  },
+                },
+              }}
             />
           </Box>
 
-          <Group align="center" gap="lg">
-            <PredictButton
-              onClick={onSubmit}
-              loading={isPending || (withExplanation && isExplaining)}
-              disabled={!canSubmit}
-              idleLabel="Analyze GitHub Commit"
-              loadingLabel={withExplanation ? "Analyzing + Explaining..." : "Analyzing..."}
-              pendingMessage={
-                withExplanation
-                  ? "Fetching commit, analyzing, and generating explanation..."
-                  : "Fetching commit & Analyzing..."
-              }
-              errorMessage={error?.message}
-              size="md"
-            />
-            <Checkbox
-              label="Explain with CLM"
-              checked={withExplanation}
-              onChange={(e) => setWithExplanation(e.currentTarget.checked)}
-            />
-          </Group>
+          {/* Analyze row: button + integrated checkbox */}
+          <PredictButton
+            onClick={onSubmit}
+            loading={isPending || (withExplanation && isExplaining)}
+            disabled={!canSubmit}
+            idleLabel="Analyze GitHub Commit"
+            loadingLabel={withExplanation ? 'Analyzing + Explaining...' : 'Analyzing...'}
+            pendingMessage={
+              withExplanation
+                ? 'Fetching commit, analyzing, and generating explanation...'
+                : 'Fetching commit & Analyzing...'
+            }
+            errorMessage={error?.message}
+            size="md"
+            showExplainToggle
+            explainChecked={withExplanation}
+            onExplainChange={setWithExplanation}
+            explainLabel="Explain with CLM"
+          />
         </Stack>
       </Card>
 

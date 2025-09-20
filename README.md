@@ -88,7 +88,7 @@ cd deploy
 ./compose.sh test up -d drs-seq-cls-api drs-gateway-api drs-frontend --no-deps
 
 # Bring up PROD
-./compose.sh prod up -d
+./compose.sh prod up -d --build
 
 # See the fully-resolved config for TEST (great for debugging)
 ./compose.sh test config

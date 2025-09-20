@@ -1,3 +1,7 @@
+const OWNER_REPO_1 = "facebook/react"
+
+const COMMIT_SHA_1 = "16ff29d2780784ce51f5e66edf08cee9785444cc"
+
 const DEFAULT_DIFF_1 = `diff --git a/flink-runtime/src/main/java/org/apache/flink/runtime/io/network/api/writer/BroadcastRecordWriter.java b/flink-runtime/src/main/java/org/apache/flink/runtime/io/network/api/writer/BroadcastRecordWriter.java
 index effff59a105af..7544af20177c9 100644
 --- a/flink-runtime/src/main/java/org/apache/flink/runtime/io/network/api/writer/BroadcastRecordWriter.java
@@ -1791,4 +1795,4 @@ const DEFAULT_COMMIT_2 = "Fix flaky test due to unordered set";
 
 
 
-export default {DEFAULT_DIFF_1, DEFAULT_COMMIT_1, DEFAULT_DIFF_2, DEFAULT_COMMIT_2};
+export default {DEFAULT_DIFF_1, DEFAULT_COMMIT_1, DEFAULT_DIFF_2, DEFAULT_COMMIT_2, OWNER_REPO_1, COMMIT_SHA_1};

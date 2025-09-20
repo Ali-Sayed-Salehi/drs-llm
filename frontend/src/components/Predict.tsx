@@ -1,3 +1,4 @@
+// src/components/Predict.tsx
 import { useState, useMemo } from 'react';
 import {
   Button,
@@ -11,7 +12,6 @@ import {
   ScrollArea,
   Badge,
   Box,
-  Checkbox,
 } from '@mantine/core';
 import { IconTrash, IconPlus, IconCode, IconMessage } from '@tabler/icons-react';
 import { usePredict } from '../hooks/usePredict';
@@ -252,30 +252,27 @@ export default function Predict() {
         </Stack>
       </ScrollArea.Autosize>
 
-      {/* Analyze row: button + checkbox */}
-      <Group align="center" gap="lg">
-        <PredictButton
-          onClick={submit}
-          loading={activePending}
-          disabled={items.length === 0}
-          idleLabel={isBatch ? `Analyze ${items.length} Items` : 'Analyze Risk'}
-          loadingLabel={isExplaining ? 'Explaining…' : 'Analyzing...'}
-          pendingMessage={
-            activePending
-              ? isBatch
-                ? `Processing ${items.length} item(s)${withExplanation ? ' + generating explanations' : ''}...`
-                : `Processing 1 item${withExplanation ? ' + generating explanation' : ''}...`
-              : undefined
-          }
-          errorMessage={activeIsError ? activeError?.message : undefined}
-          size="lg"
-        />
-        <Checkbox
-          label="Explain with CLM"
-          checked={withExplanation}
-          onChange={(e) => setWithExplanation(e.currentTarget.checked)}
-        />
-      </Group>
+      {/* Analyze row: button + checkbox (checkbox integrated) */}
+      <PredictButton
+        onClick={submit}
+        loading={activePending}
+        disabled={items.length === 0}
+        idleLabel={isBatch ? `Analyze ${items.length} Items` : 'Analyze Risk'}
+        loadingLabel={isExplaining ? 'Explaining…' : 'Analyzing...'}
+        pendingMessage={
+          activePending
+            ? isBatch
+              ? `Processing ${items.length} item(s)${withExplanation ? ' + generating explanations' : ''}...`
+              : `Processing 1 item${withExplanation ? ' + generating explanation' : ''}...`
+            : undefined
+        }
+        errorMessage={activeIsError ? activeError?.message : undefined}
+        size="lg"
+        showExplainToggle
+        explainChecked={withExplanation}
+        onExplainChange={setWithExplanation}
+        explainLabel="Explain with CLM"
+      />
 
       {/* Results Section */}
       <AnalysisResults
