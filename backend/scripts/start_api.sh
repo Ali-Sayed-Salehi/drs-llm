@@ -1,3 +1,5 @@
+# backend/scripts/start_api.sh
+
 #!/usr/bin/env bash
 set -euo pipefail
 

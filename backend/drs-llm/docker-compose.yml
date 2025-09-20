@@ -1,59 +1,75 @@
-services:
-  drs-seq-cls-api-test:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        UID: 23519
-        GID: 6000
-        USERNAME: app
-    image: drs-llm-api:latest
-    container_name: drs-cls-api-test
-    working_dir: /workspace
-    environment:
-      - HOME=/workspace
-      - NVIDIA_VISIBLE_DEVICES=2
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-      # --- App-specific overrides ---
-      - HF_HOME=/workspace/.cache/seqcls/huggingface
-      - CUDA_CACHE_PATH=/workspace/.cache/seqcls/nv
-      - TORCHINDUCTOR_CACHE_DIR=/workspace/.cache/seqcls/torchinductor
-      - PIP_CACHE_DIR=/workspace/.cache/seqcls/pip
-      - PYTHONPYCACHEPREFIX=/workspace/.cache/seqcls/pyc
+# backend/drs-llm/docker-compose.yml
 
-      - APP_MODULE=api_cls.app:app
-      - PORT=8081
-      - LOG_PREFIX=seq-cls
-    volumes:
-      - ./:/workspace
-      - ../../../perf-pilot/LLMs:/LLMs:ro
-    runtime: nvidia
-    network_mode: host
-    command: ["./run_with_logs.sh"]
+x-common-build: &common_build
+  context: .
+  dockerfile: Dockerfile
+  args:
+    UID: "${DOCKER_UID:-23519}"
+    GID: "${DOCKER_GID:-6000}"
+    USERNAME: ${DOCKER_USERNAME:-app}
+
+x-common-volumes: &common_volumes
+  - ./:/workspace
+  - ../../../perf-pilot/LLMs:/LLMs:ro
+  - ../../logs:/workspace/logs:z
+  - ../scripts:/workspace/scripts:ro
+
+x-common-env: &common_env
+  HOME: ${HOME:-/workspace}
+  NVIDIA_DRIVER_CAPABILITIES: ${NVIDIA_DRIVER_CAPABILITIES:-compute,utility}
+
+x-service-base: &service_base
+  image: llm-env:latest
+  build: *common_build
+  working_dir: /workspace
+  volumes: *common_volumes
+  runtime: nvidia
+  network_mode: host
+  command: ["/workspace/scripts/run_with_logs.sh"]
+
+services:
+  drs-seq-cls-api:
+    <<: *service_base
+    environment:
+      <<: *common_env
+      NVIDIA_VISIBLE_DEVICES: "${SEQCLS_GPU:-2}"
+      HF_HOME: ${SEQCLS_HF_HOME:-/workspace/.cache/seqcls/huggingface}
+      CUDA_CACHE_PATH: ${SEQCLS_CUDA_CACHE_PATH:-/workspace/.cache/seqcls/nv}
+      TORCHINDUCTOR_CACHE_DIR: ${SEQCLS_TORCHINDUCTOR_CACHE_DIR:-/workspace/.cache/seqcls/torchinductor}
+      PIP_CACHE_DIR: ${SEQCLS_PIP_CACHE_DIR:-/workspace/.cache/seqcls/pip}
+      PYTHONPYCACHEPREFIX: ${SEQCLS_PYTHONPYCACHEPREFIX:-/workspace/.cache/seqcls/pyc}
+      APP_MODULE: ${SEQCLS_APP_MODULE:-api_cls.app:app}
+      PORT: "${SEQCLS_PORT:-8081}"
+      LOG_PREFIX: ${SEQCLS_LOG_PREFIX:-seq-cls}
+      # LLM knobs (shared defaults, per-service override via env if needed)
+      DRSLLM_MODEL_ID: ${SEQCLS_DRSLLM_MODEL_ID:-/LLMs/trained/sequence-classification/llama3.1_8B_apachejit_small}
+      DRSLLM_DTYPE: ${DRSLLM_DTYPE:-float16}
+      DRSLLM_MAX_LENGTH: "${DRSLLM_MAX_LENGTH:-4000}"
+      DRSLLM_LOAD_IN_4BIT: "${DRSLLM_LOAD_IN_4BIT:-true}"
+      DRSLLM_LOG_LEVEL: ${DRSLLM_LOG_LEVEL:-INFO}
+      DRSLLM_ACCESS_LOG_LEVEL: ${DRSLLM_ACCESS_LOG_LEVEL:-INFO}
+      DRSLLM_TRANSFORMERS_LOG_LEVEL: ${DRSLLM_TRANSFORMERS_LOG_LEVEL:-INFO}
+      DRSLLM_GITHUB_API_BASE: ${DRSLLM_GITHUB_API_BASE:-https://api.github.com}
 
   drs-clm-api:
-    image: drs-llm-api:latest
-    container_name: drs-clm-api-test
-    working_dir: /workspace
+    <<: *service_base
     environment:
-      - HOME=/workspace
-      - NVIDIA_VISIBLE_DEVICES=3
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-      # --- App-specific overrides ---
-      - HF_HOME=/workspace/.cache/clm/huggingface
-      - CUDA_CACHE_PATH=/workspace/.cache/clm/nv
-      - TORCHINDUCTOR_CACHE_DIR=/workspace/.cache/clm/torchinductor
-      - PIP_CACHE_DIR=/workspace/.cache/clm/pip
-      - PYTHONPYCACHEPREFIX=/workspace/.cache/clm/pyc
-
-      - APP_MODULE=api_clm.app:app
-      - PORT=8082
-      - LOG_PREFIX=clm
-      - DRSLLM_MODEL_ID=/LLMs/snapshots/meta-llama/Llama-3.1-8B
-      # - DRSLLM_MAX_LENGTH=8000
-    volumes:
-      - ./:/workspace
-      - ../../../perf-pilot/LLMs:/LLMs:ro
-    runtime: nvidia
-    network_mode: host
-    command: ["./run_with_logs.sh"]
+      <<: *common_env
+      NVIDIA_VISIBLE_DEVICES: "${CLM_GPU:-3}"
+      HF_HOME: ${CLM_HF_HOME:-/workspace/.cache/clm/huggingface}
+      CUDA_CACHE_PATH: ${CLM_CUDA_CACHE_PATH:-/workspace/.cache/clm/nv}
+      TORCHINDUCTOR_CACHE_DIR: ${CLM_TORCHINDUCTOR_CACHE_DIR:-/workspace/.cache/clm/torchinductor}
+      PIP_CACHE_DIR: ${CLM_PIP_CACHE_DIR:-/workspace/.cache/clm/pip}
+      PYTHONPYCACHEPREFIX: ${CLM_PYTHONPYCACHEPREFIX:-/workspace/.cache/clm/pyc}
+      APP_MODULE: ${CLM_APP_MODULE:-api_clm.app:app}
+      PORT: "${CLM_PORT:-8082}"
+      LOG_PREFIX: ${CLM_LOG_PREFIX:-clm}
+      # LLM knobs
+      DRSLLM_MODEL_ID: ${CLM_DRSLLM_MODEL_ID:-/LLMs/snapshots/meta-llama/Llama-3.1-8B}
+      DRSLLM_DTYPE: ${DRSLLM_DTYPE:-float16}
+      DRSLLM_MAX_LENGTH: "${DRSLLM_MAX_LENGTH:-4000}"
+      DRSLLM_LOAD_IN_4BIT: "${DRSLLM_LOAD_IN_4BIT:-true}"
+      DRSLLM_LOG_LEVEL: ${DRSLLM_LOG_LEVEL:-INFO}
+      DRSLLM_ACCESS_LOG_LEVEL: ${DRSLLM_ACCESS_LOG_LEVEL:-INFO}
+      DRSLLM_TRANSFORMERS_LOG_LEVEL: ${DRSLLM_TRANSFORMERS_LOG_LEVEL:-INFO}
+      DRSLLM_GITHUB_API_BASE: ${DRSLLM_GITHUB_API_BASE:-https://api.github.com}

@@ -33,4 +33,4 @@ COPY --from=builder /app/server.js ./server.js
 USER node
 
 EXPOSE 3173
-CMD ["node", "server.js"]
+ENTRYPOINT ["/bin/bash"]
