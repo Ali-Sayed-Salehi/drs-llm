@@ -11,8 +11,8 @@
 
 set -euo pipefail
 
-SEQ_BASE="${1:-${BASE:-http://localhost:8081}}"
-CLM_BASE="${2:-${CLM_BASE:-http://localhost:8082}}"
+SEQ_BASE="${1:-${BASE:-http://localhost:8083/seq-cls}}"
+CLM_BASE="${2:-${CLM_BASE:-http://localhost:8083/clm}}"
 
 GH_REPO="${GH_REPO:-apache/flink}"
 GH_SHA="${GH_SHA:-d7b5213f1fd2910ce0fd111027608fb452c1f733}"

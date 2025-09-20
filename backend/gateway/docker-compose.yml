@@ -3,7 +3,7 @@
 services:
   drs-gateway-api:
     build:
-      context: .
+      context: ${REPO_ROOT}/backend/gateway
       dockerfile: Dockerfile
       args:
         UID: "${DOCKER_UID:-23519}"
@@ -22,7 +22,7 @@ services:
       LOG_PREFIX: "gateway-api"
     user: "${DOCKER_UID:-23519}:${DOCKER_GID:-6000}"
     volumes:
-      - ../../logs:/workspace/logs:z
+      - ../../logs:/workspace/logs
       - ../scripts:/workspace/scripts:ro
     network_mode: host
     command: ["/workspace/scripts/run_with_logs.sh"]

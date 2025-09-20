@@ -1,7 +1,7 @@
 # backend/drs-llm/docker-compose.yml
 
 x-common-build: &common_build
-  context: .
+  context: ${REPO_ROOT}/backend/drs-llm
   dockerfile: Dockerfile
   args:
     UID: "${DOCKER_UID:-23519}"
@@ -11,7 +11,7 @@ x-common-build: &common_build
 x-common-volumes: &common_volumes
   - ./:/workspace
   - ../../../perf-pilot/LLMs:/LLMs:ro
-  - ../../logs:/workspace/logs:z
+  - ../../logs:/workspace/logs
   - ../scripts:/workspace/scripts:ro
 
 x-common-env: &common_env

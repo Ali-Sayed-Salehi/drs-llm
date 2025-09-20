@@ -13,6 +13,7 @@ __pychache__/
 # other
 /docker_jobs
 .nfs*
+logs/
 
 # cache
 .cache

@@ -2,7 +2,7 @@
 services:
   drs-frontend:
     build:
-      context: .
+      context: ${REPO_ROOT}/frontend
       dockerfile: Dockerfile
       args:
         UID: "${DOCKER_UID:-23519}"
@@ -15,9 +15,10 @@ services:
       NODE_ENV: "${FRONTEND_NODE_ENV:-production}"
       PORT: "${FRONTEND_PORT:-3173}"
       HOST: "${FRONTEND_HOST:-0.0.0.0}"
+      VITE_API_BASE: "${FRONTEND_VITE_API_BASE:-http://localhost:8083/}"  
     user: "${DOCKER_UID:-23519}:${DOCKER_GID:-6000}"
     volumes:
-      - ../../logs:/workspace/logs:z
+      - ../../logs:/workspace/logs
       - ../scripts:/workspace/scripts:ro
     restart: unless-stopped
     network_mode: host

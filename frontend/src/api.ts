@@ -2,6 +2,8 @@
 import type { PredictRequest, PredictResponse, HealthResponse, PredictBySHARequest } from "./types";
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8080";
+const SEQ_CLS_API_PATH = import.meta.env.SEQ_CLS_API_PATH ?? "/seq-cls";
+// const CLM_API_PATH = import.meta.env.CLM_API_PATH ?? "/clm";
 
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const headers = new Headers(init?.headers);
@@ -17,14 +19,14 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  health: () => http<HealthResponse>("/health"),
+  health: () => http<HealthResponse>(`${SEQ_CLS_API_PATH}/health`),
   predict: (body: PredictRequest) =>
-    http<PredictResponse>("/predict", { method: "POST", body: JSON.stringify(body) }),
+    http<PredictResponse>(`${SEQ_CLS_API_PATH}/predict`, { method: "POST", body: JSON.stringify(body) }),
   predictBatch: (items: PredictRequest[]) =>
-    http<PredictResponse[]>("/predict_batch", {
+    http<PredictResponse[]>(`${SEQ_CLS_API_PATH}/predict_batch`, {
       method: "POST",
       body: JSON.stringify(items),
     }),
   predictBySha: (body: PredictBySHARequest) =>
-    http<PredictResponse>("/predict_by_sha", { method: "POST", body: JSON.stringify(body) }),
+    http<PredictResponse>(`${SEQ_CLS_API_PATH}/predict_by_sha`, { method: "POST", body: JSON.stringify(body) }),
 };

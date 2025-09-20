@@ -1,48 +1,56 @@
 # DRS-LLM
-
+Predicting pull request bug risk score using Llama sequence classification and explainability with Llama text generation. We use Llama 3.1 8B with 4-bit quantization and the implementation is done uging Hugging face Pipeline interface.  
 
 ## Architecture
 ```mermaid
-flowchart TB
+flowchart LR
+  %% Invisible class for spacer nodes
+  classDef ghost fill:none,stroke:none;
+
   %% ==== Client ====
   Browser[User Browser]
 
-  %% ==== Project on Host (Compose) ====
-  subgraph Host["Host (Docker Compose project; network_mode: host)"]
+  %% ==== Edge / Public ====
+  subgraph Internet["Public Internet"]
     direction TB
+    i_pad[" "]:::ghost
+    NGINX["Nginx @ worldofcode.org<br/>— Reverse proxy<br/>Routes:<br/>&nbsp;&nbsp;/drs → Frontend<br/>&nbsp;&nbsp;/drs-api → Gateway API"]
+  end
+
+  %% ==== Project on Host (Compose) ====
+  subgraph Host["Docker Host"]
+    direction TB
+    h_pad[" "]:::ghost
 
     %% Frontend
-    FE["drs-frontend<br/>— Vite/Node (prod)<br/>PORT = ${FRONTEND_PORT:-3173}"]
+    FE["drs-frontend<br/>— Vite/Node"]
 
     %% Gateway
-    GW["drs-gateway-api<br/>— FastAPI reverse-proxy<br/>Routes:<br/>&nbsp;&nbsp;/seq-cls/** → Seq-Cls API<br/>&nbsp;&nbsp;/clm/** → CLM API<br/>PORT = ${GATEWAY_PORT:-8083}<br/>LOG_DIR = /workspace/logs  ⇐  ./logs"]
+    GW["drs-gateway-api<br/>— FastAPI reverse-proxy<br/>Routes:<br/>&nbsp;&nbsp;/seq-cls/** <br/>&nbsp;&nbsp;/clm/** <br/>"]
 
     %% Backends
     subgraph LLMs["LLM APIs (GPU containers)"]
       direction LR
-      SEQ["drs-seq-cls-api<br/>— FastAPI + HF seq-classification<br/>PORT = ${SEQCLS_PORT:-8081}<br/>GPU  = ${SEQCLS_GPU:-2}<br/>HF_HOME = /workspace/.cache/seqcls<br/>MODEL_ID = ${SEQCLS_DRSLLM_MODEL_ID}"]
-      CLM["drs-clm-api<br/>— FastAPI (CLM raw text)<br/>PORT = ${CLM_PORT:-8082}<br/>GPU  = ${CLM_GPU:-3}<br/>HF_HOME = /workspace/.cache/clm<br/>MODEL_ID = ${CLM_DRSLLM_MODEL_ID}"]
+      SEQ["drs-seq-cls-api<br/>— FastAPI + HF seq-classification"]
+      CLM["drs-clm-api<br/>— FastAPI (CLM raw text)"]
     end
 
     %% Shared storage mapped on host
     subgraph Vols["Host-mapped volumes"]
       direction TB
-      LOGS[/"./logs ↔ /workspace/logs"/]
-      MODELS[/"../../../perf-pilot/LLMs (ro) ↔ /LLMs"/]
-      CACHES[/" /workspace/.cache/* (inside containers) "/]
+      MODELS["perf-pilot/LLMs (ro) ↔ /LLMs"]
     end
   end
 
   %% ==== Edges ====
-  Browser -->|"HTTP"| FE
-  FE -->|"HTTP → http://localhost:${GATEWAY_PORT:-8083}"| GW
+  Browser -->|"HTTPS"| NGINX
+  NGINX -->|"/drs"| FE
+  NGINX -->|"/drs-api"| GW
   GW -->|"/seq-cls/**"| SEQ
   GW -->|"/clm/**"| CLM
+  FE --> |"worldofcode/drs-api"| GW
 
   %% Volumes wiring
-  GW --- LOGS
-  SEQ --- LOGS
-  CLM --- LOGS
   SEQ --- MODELS
   CLM --- MODELS
 
@@ -50,10 +58,10 @@ flowchart TB
 
 
 ## Testing and Deployment
-First modify the env variables in the prod.env and test.env. 
-The system needs at least two GPUs the cuda device numbers of which have to be given in the env files.
+First modify the env variables in the `drs-llm/deply/prod.env` and test.env. 
+The system needs at least two GPUs. Give the cuda device numbers of each one in the env files.
 
-All the services have compose files. You can build and start them just how you would do with docke compose. When using the compose.sh script, it's the same but all the compose files are passed in by default so you just have to name services and the environment you want.
+All the services have docker-compose files. When using the compose.sh script, all the compose files are passed in by default so you just have to name services and the environment you want and the docker compose flags you want.
 
 ```bash
 cd deploy
@@ -87,5 +95,8 @@ cd deploy
 
 # Tail gateway logs for only gateway api in TEST
 ./compose.sh test logs -f drs-gateway-api --no-deps
+
+# Build everything
+./compose.sh test build --no-cache
 
 ```
