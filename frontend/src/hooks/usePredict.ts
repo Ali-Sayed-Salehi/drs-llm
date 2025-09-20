@@ -1,3 +1,4 @@
+// src/hooks/usePredict.ts
 import { useCallback, useState } from "react";
 import { api } from "../api";
 import type { PredictRequest, PredictResponse } from "../types";

@@ -5,8 +5,11 @@ WORKDIR /workspace
 # pick up Vite vars as build args and export to env before build
 ARG VITE_API_BASE
 ARG VITE_SEQ_CLS_API_PATH
+ARG VITE_CLM_API_PATH
+
 ENV VITE_API_BASE=$VITE_API_BASE
 ENV VITE_SEQ_CLS_API_PATH=$VITE_SEQ_CLS_API_PATH
+ENV VITE_CLM_API_PATH=$VITE_CLM_API_PATH
 
 # 1) Install deps (includes dev deps for Vite/TS)
 COPY package*.json ./

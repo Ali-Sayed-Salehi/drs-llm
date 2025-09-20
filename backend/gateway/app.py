@@ -95,15 +95,24 @@ async def _proxy(request: Request, base: str, tail_path: str) -> Response:
     )
 
 
+# gateway/app.py (only the /health function changes)
 @app.get("/health")
 async def health():
-    """Gateway health + upstream checks."""
+    """Gateway health + upstream checks with model_id passthrough when available."""
     client: httpx.AsyncClient = app.state.client
 
     async def check(url: str):
         try:
             r = await client.get(url, timeout=TIMEOUT_S)
-            return {"ok": r.status_code == 200, "status": r.status_code}
+            model_id = None
+            # Try to parse JSON to extract model_id (seq-cls provides this)
+            try:
+                j = r.json()
+                # common field name in your APIs
+                model_id = j.get("model_id") if isinstance(j, dict) else None
+            except Exception:
+                pass
+            return {"ok": r.status_code == 200, "status": r.status_code, "model_id": model_id}
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
