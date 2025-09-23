@@ -10,9 +10,9 @@ services:
         GID: "${DOCKER_GID:-6000}"
         USERNAME: ${DOCKER_USERNAME:-app}
     image: gateway:latest
-    depends_on:
-      - drs-seq-cls-api
-      - drs-clm-api
+    # depends_on:
+    #   - drs-seq-cls-api
+    #   - drs-clm-api
     environment:
       SEQ_BASE: "${SEQ_BASE:-http://localhost:${SEQCLS_PORT:-8084}}"
       CLM_BASE: "${CLM_BASE:-http://localhost:${CLM_PORT:-8085}}"
@@ -20,6 +20,7 @@ services:
       HOST: "${GATEWAY_HOST:-0.0.0.0}"
       PORT: "${GATEWAY_PORT:-8083}"
       LOG_PREFIX: "gateway-api"
+      REPO_ROOT: ${REPO_ROOT:-/home/alis/repos/drs-llm}
     user: "${DOCKER_UID:-23519}:${DOCKER_GID:-6000}"
     volumes:
       - ${REPO_ROOT}/logs:/workspace/logs

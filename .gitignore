@@ -20,3 +20,6 @@ logs/
 .nv
 .triton
 .bash_history
+
+deploy/.env
+deploy/.env.dev

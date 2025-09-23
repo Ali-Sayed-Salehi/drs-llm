@@ -17,6 +17,8 @@ x-common-volumes: &common_volumes
 x-common-env: &common_env
   HOME: ${HOME:-/workspace}
   NVIDIA_DRIVER_CAPABILITIES: ${NVIDIA_DRIVER_CAPABILITIES:-compute,utility}
+  DRSLLM_GITHUB_TOKEN: ${DRSLLM_GITHUB_TOKEN}
+  REPO_ROOT: ${REPO_ROOT:-/home/alis/repos/drs-llm}
 
 x-service-base: &service_base
   image: llm-env:latest
