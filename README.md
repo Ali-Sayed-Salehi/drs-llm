@@ -67,7 +67,7 @@ Services:
 drs-seq-cls-api, drs-clm-api, drs-gateway-api, drs-frontend, drs-github-app
 ```
 
-Logs are save to `<drs-llm>/logs`
+Logs are saved to `<drs-llm>/logs`
 
 ```bash
 cd deploy
