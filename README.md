@@ -57,49 +57,37 @@ flowchart LR
 ```
 
 
-## Testing and Deployment
-First modify the env variables in the `drs-llm/deply/prod.env` and test.env. 
-The system needs at least two GPUs. Give the cuda device numbers of each one in the env files.
+## Development and Deployment
+First, create a .env file by copying `<drs-llm>/deply/.env.example` and filling in the secrets and other values you might want to change. The .env file has most common env varibales. For more variables you can add to the .env.dev, look at each service's docker-compose file or other .env files in the service source code.
+Each DRS LLM API needs at least one GPU. Give the cuda device numbers of each one in the env files.
 
-All the services have docker-compose files. When using the compose.sh script, all the compose files are passed in by default so you just have to name services and the environment you want and the docker compose flags you want.
+All the services have docker-compose files. When using the compose.sh script, all the compose files are passed in by default so you just have to name services and the environment you want and the docker compose flags you want. If no services are named, all the services will run.
+Services: 
+```txt
+drs-seq-cls-api, drs-clm-api, drs-gateway-api, drs-frontend, drs-github-app
+```
+
+Logs are save to `<drs-llm>/logs`
 
 ```bash
 cd deploy
 
 # Stop running containers
-./compose.sh test down
+./compose.sh down
 
 # Bring up only the backend and also build the images in case of new changes
-./compose.sh test up -d --build drs-gateway-api
+./compose.sh up -d --build drs-gateway-api, drs-seq-cls-api, drs-clm-api
 
-# Bring up the whole stack and also build the images in case of new changes
-./compose.sh test up -d --build
+# Bring up the whole stack
+./compose.sh up -d --build
 
 # See the merged services
-./compose.sh test config --services
+./compose.sh config --services
 
-# Bring up the whole stack in TEST
-./compose.sh test up -d
-
-# Bring up only the backend and remove orphan ocntainers
-./compose.sh test up -d drs-gateway-api --remove-orphans
-
-# frontend only
-./compose.sh test up -d drs-frontend --no-deps
-
-# Bring up the whole stack with only the seq cls api
-./compose.sh test up -d drs-seq-cls-api drs-gateway-api drs-frontend --no-deps
-
-# Bring up PROD
-./compose.sh prod up -d --build
-
-# See the fully-resolved config for TEST (great for debugging)
-./compose.sh test config
-
-# Tail gateway logs for only gateway api in TEST
-./compose.sh test logs -f drs-gateway-api --no-deps
+# See the fully-resolved config (great for debugging)
+./compose.sh config
 
 # Build everything
-./compose.sh test build --no-cache
+./compose.sh build --no-cache
 
 ```

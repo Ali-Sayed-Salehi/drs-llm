@@ -1,0 +1,28 @@
+# github-app/docker-compose.yaml
+services:
+  drs-github-app:
+    build:
+      context: ${REPO_ROOT}/github-app
+      dockerfile: Dockerfile
+    image: drs-github-app:latest
+
+    environment:
+      # --- Probot / GitHub App creds ---
+      APP_ID: "${GITHUB_APP_APP_ID}"
+      WEBHOOK_SECRET: "${GITHUB_APP_WEBHOOK_SECRET}"
+      PRIVATE_KEY_PATH: "${GITHUB_APP_PRIVATE_KEY_PATH:-./drs-risk-bot.2025-09-22.private-key.pem}"
+
+      DRS_API_BASE: "${GITHUB_APP_DRS_API_BASE:-http://localhost:8083}"
+      WITH_EXPLANATION: "${GITHUB_APP_WITH_EXPLANATION:-true}"
+      PORT: "${GITHUB_APP_PORT:-3000}"
+      HOST: "${GITHUB_APP_HOST:-0.0.0.0}"
+      LOG_FORMAT: "${GITHUB_APP_LOG_LEVEL:-debug}"
+
+    # depends_on:
+    #   - drs-gateway-api
+    user: "${DOCKER_UID:-23519}:${DOCKER_GID:-6000}"
+    volumes:
+      - ${REPO_ROOT}/logs:/workspace/logs
+      - ${REPO_ROOT}/github-app/scripts:/workspace/scripts:ro
+    network_mode: host
+    command: ["/workspace/scripts/run_with_logs.sh"]

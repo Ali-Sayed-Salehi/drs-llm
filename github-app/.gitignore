@@ -1,0 +1,10 @@
+.env
+.nfs
+*.pem
+
+node_modules
+dist
+.git
+*.log
+
+.nfs*

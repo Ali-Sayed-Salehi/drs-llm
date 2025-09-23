@@ -1,0 +1,12 @@
+{
+  "name": "drs-bot",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "probot": "^13.x"
+  },
+  "scripts": {
+    "start": "probot run ./src/index.js"
+  }
+}

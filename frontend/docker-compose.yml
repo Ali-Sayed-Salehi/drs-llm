@@ -12,8 +12,8 @@ services:
         VITE_SEQ_CLS_API_PATH: "${FRONTEND_VITE_SEQ_CLS_API_PATH:-/seq-cls}"
         VITE_CLM_API_PATH: "${FRONTEND_VITE_CLM_API_PATH:-/clm}"
     image: drs-frontend:latest
-    depends_on:
-      - drs-gateway-api
+    # depends_on:
+    #   - drs-gateway-api
     environment:
       NODE_ENV: "${FRONTEND_NODE_ENV:-production}"
       PORT: "${FRONTEND_PORT:-3173}"
