@@ -9,16 +9,9 @@ import AnalysisResults from './AnalysisResults';
 import PredictButton from './PredictButton';
 import CONSTANTS from '../constants';
 
-/** Parse GitHub commit URL → { repo: "owner/repo", sha }.
- * Supports:
- *   - https://github.com/{owner}/{repo}/commit/{sha}
- *   - https://github.com/{owner}/{repo}/pull/{n}/commits/{sha}
- * Also accepts protocol-less inputs starting with "github.com/...".
- */
 function parseCommitUrl(input: string): { repo: string; sha: string } | null {
   let raw = input.trim();
   if (!raw) return null;
-
   if (raw.startsWith('github.com/')) raw = `https://${raw}`;
 
   let url: URL;
@@ -27,32 +20,26 @@ function parseCommitUrl(input: string): { repo: string; sha: string } | null {
   } catch {
     return null;
   }
-
   if (url.hostname !== 'github.com') return null;
 
   const path = url.pathname.replace(/\/+$/, '');
 
-  // /owner/repo/commit/<sha>
   const m1 = path.match(/^\/([^/]+)\/([^/]+)\/commit\/([0-9a-fA-F]{7,40})$/);
   if (m1) {
     const [, owner, repo, sha] = m1;
     return { repo: `${owner}/${repo}`, sha };
   }
-
-  // /owner/repo/pull/<n>/commits/<sha>
   const m2 = path.match(/^\/([^/]+)\/([^/]+)\/pull\/\d+\/commits\/([0-9a-fA-F]{7,40})$/);
   if (m2) {
     const [, owner, repo, sha] = m2;
     return { repo: `${owner}/${repo}`, sha };
   }
-
   return null;
 }
 
 export default function PredictGithub() {
   const { isDarkMode } = useTheme();
 
-  // Prefill with existing constants as a valid sample commit URL
   const [commitUrl, setCommitUrl] = useState(
     `https://github.com/${CONSTANTS.OWNER_REPO_1}/commit/${CONSTANTS.COMMIT_SHA_1}`
   );
@@ -63,7 +50,6 @@ export default function PredictGithub() {
 
   const [isPending, setPending] = useState(false);
   const [error, setError] = useState<Error | undefined>();
-  // Attach repo/sha so AnalysisResults can render a GitHub URL if it supports it
   const [result, setResult] = useState<(PredictResponse & { repo?: string; sha?: string }) | undefined>();
 
   const parsed = useMemo(() => parseCommitUrl(commitUrl), [commitUrl]);
@@ -118,7 +104,7 @@ export default function PredictGithub() {
         </Text>
       </Box>
 
-      {/* Form */}
+      {/* Form (card) */}
       <Card
         withBorder
         radius="lg"
@@ -129,7 +115,6 @@ export default function PredictGithub() {
         }}
       >
         <Stack gap="lg">
-          {/* Commit URL */}
           <Box>
             <Group gap="sm" mb="sm">
               <IconBrandGithub size={18} color={isDarkMode ? '#cbd5e1' : '#64748b'} />
@@ -158,30 +143,29 @@ export default function PredictGithub() {
               }}
             />
           </Box>
-
-          {/* Analyze row: button + integrated checkbox */}
-          <PredictButton
-            onClick={onSubmit}
-            loading={isPending || (withExplanation && isExplaining)}
-            disabled={!canSubmit}
-            idleLabel="Analyze GitHub Commit"
-            loadingLabel={withExplanation ? 'Analyzing + Explaining...' : 'Analyzing...'}
-            pendingMessage={
-              withExplanation
-                ? 'Fetching commit, analyzing, and generating explanation...'
-                : 'Fetching commit & Analyzing...'
-            }
-            errorMessage={error?.message}
-            size="md"
-            showExplainToggle
-            explainChecked={withExplanation}
-            onExplainChange={setWithExplanation}
-            explainLabel="Explain with CLM"
-          />
         </Stack>
       </Card>
 
-      {/* Results + (inline) explanation */}
+      {/* Controls (OUTSIDE the card) */}
+      <PredictButton
+        onClick={onSubmit}
+        loading={isPending || (withExplanation && isExplaining)}
+        disabled={!canSubmit}
+        loadingLabel={withExplanation ? 'Analyzing + Explaining...' : 'Analyzing...'}
+        pendingMessage={
+          withExplanation
+            ? 'Fetching commit, analyzing, and generating explanation...'
+            : 'Fetching commit & Analyzing...'
+        }
+        errorMessage={error?.message}
+        size="md"
+        showExplainToggle
+        explainChecked={withExplanation}
+        onExplainChange={setWithExplanation}
+        explainLabel="Explain with CLM"
+      />
+
+      {/* Results */}
       <AnalysisResults
         results={result ? [result] : []}
         explanations={explanation ? [explanation] : []}

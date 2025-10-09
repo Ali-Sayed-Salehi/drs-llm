@@ -17,7 +17,7 @@ import { IconTrash, IconPlus, IconCode, IconMessage } from '@tabler/icons-react'
 import { usePredict } from '../hooks/usePredict';
 import { usePredictBatch } from '../hooks/usePredictBatch';
 import type { PredictRequest, PredictResponse } from '../types';
-import CONSTANTS from '../constants';
+import { DEFAULT_COMMIT_1, DEFAULT_DIFF_1 } from '../constants';
 import { useTheme } from '../contexts/ThemeContext';
 import AnalysisResults from './AnalysisResults';
 import PredictButton from './PredictButton';
@@ -28,17 +28,14 @@ type Item = { id: string; commit_message: string; code_diff: string };
 export default function Predict() {
   const { isDarkMode } = useTheme();
 
-  // Default to SINGLE item (not batch)
   const [items, setItems] = useState<Item[]>([
-    { id: crypto.randomUUID(), commit_message: CONSTANTS.DEFAULT_COMMIT_1, code_diff: CONSTANTS.DEFAULT_DIFF_1 },
+    { id: crypto.randomUUID(), commit_message: DEFAULT_COMMIT_1, code_diff: DEFAULT_DIFF_1 },
   ]);
 
-  // Optional CLM explanation
   const [withExplanation, setWithExplanation] = useState<boolean>(false);
   const [explanations, setExplanations] = useState<string[] | null>(null);
   const [isExplaining, setIsExplaining] = useState<boolean>(false);
 
-  // seq-cls hooks
   const {
     data: sData,
     isPending: sPending,
@@ -87,7 +84,7 @@ export default function Predict() {
   const submit = async () => {
     if (items.length === 0) return;
 
-    setExplanations(null); // reset old explanations
+    setExplanations(null);
 
     if (isBatch) {
       const payload = items.map(({ commit_message, code_diff }) => ({ commit_message, code_diff }));
@@ -95,9 +92,7 @@ export default function Predict() {
       if (withExplanation) {
         try {
           await runClmExplanations(payload);
-        } catch {
-          // swallow CLM errors for now; optionally surface in UI
-        }
+        } catch {/* ignore */}
       }
     } else {
       const { commit_message, code_diff } = items[0];
@@ -105,9 +100,7 @@ export default function Predict() {
       if (withExplanation) {
         try {
           await runClmExplanations([{ commit_message, code_diff }]);
-        } catch {
-          // swallow CLM errors for now
-        }
+        } catch {/* ignore */}
       }
     }
   };
@@ -142,7 +135,7 @@ export default function Predict() {
         </Button>
       </Group>
 
-      {/* Items Section */}
+      {/* Items Section (cards) */}
       <ScrollArea.Autosize mah={600}>
         <Stack gap="lg">
           {items.map((it, i) => (
@@ -206,7 +199,10 @@ export default function Predict() {
                           borderRadius: '8px',
                           fontSize: '0.95rem',
                           '&::placeholder': { color: isDarkMode ? '#9ca3af' : '#6b7280' },
-                          '&:focus': { borderColor: '#3b82f6', boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.25)' },
+                          '&:focus': {
+                            borderColor: '#3b82f6',
+                            boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.25)',
+                          },
                         },
                       }}
                     />
@@ -240,7 +236,10 @@ export default function Predict() {
                           fontSize: '0.9rem',
                           lineHeight: 1.5,
                           '&::placeholder': { color: isDarkMode ? '#9ca3af' : '#6b7280' },
-                          '&:focus': { borderColor: '#3b82f6', boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.25)' },
+                          '&:focus': {
+                            borderColor: '#3b82f6',
+                            boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.25)',
+                          },
                         },
                       }}
                     />
@@ -252,12 +251,12 @@ export default function Predict() {
         </Stack>
       </ScrollArea.Autosize>
 
-      {/* Analyze row: button + checkbox */}
+      {/* Controls (OUTSIDE the cards; matches GitHub tab) */}
       <PredictButton
         onClick={submit}
         loading={activePending}
         disabled={items.length === 0}
-        idleLabel={isBatch ? `Analyze ${items.length} Items` : 'Analyze Risk'}
+        idleLabel={isBatch ? `Analyze ${items.length} Items` : 'Analyze'}
         loadingLabel={isExplaining ? 'Explaining…' : 'Analyzing...'}
         pendingMessage={
           activePending
@@ -274,7 +273,7 @@ export default function Predict() {
         explainLabel="Explain with CLM"
       />
 
-      {/* Results Section */}
+      {/* Results */}
       <AnalysisResults
         results={results}
         explanations={withExplanation ? (explanations ?? []) : []}

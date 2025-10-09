@@ -1,20 +1,67 @@
 // src/components/Header.tsx
-import { Box, Text, Image, Paper } from '@mantine/core';
+import { Box, Text, Image, Paper, Group } from '@mantine/core';
+import { NavLink } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
-import ThemeToggle from './ThemeToggle';
-import bannerUrl from '@/assets/llama_logo.png';
+import { IconSun, IconMoon } from '@tabler/icons-react';
+import React from 'react';
 
+import bannerUrl from '@/assets/llama_logo.png';
 import logo1 from '@/assets/concordia_logo.png';
 import logo2 from '@/assets/utk_logo.png';
 import logo3 from '@/assets/woc_logo.png';
 
 export default function Header() {
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const logos = [logo1, logo2, logo3, bannerUrl];
-
   const logoWidths = { base: 60, sm: 75, md: 90, lg: 100 };
-  const bannerWidths = { base: 130, sm: 160, md: 210, lg: 250 };
+  const bannerWidths = { base: 90, sm: 110, md: 170, lg: 200 };
+
+  const activeBg = isDarkMode ? '#334155' : '#e2e8f0';
+  const activeColor = isDarkMode ? '#f8fafc' : '#0f172a';
+  const inactiveColor = isDarkMode ? '#cbd5e1' : '#475569';
+  const activeBorder = isDarkMode ? '#475569' : '#d1d5db';
+  const hoverBg = isDarkMode ? '#3b4454' : '#eef2f6';
+
+  const pillBase: React.CSSProperties = {
+    borderRadius: 9999,
+    textDecoration: 'none',
+    fontWeight: 700,
+    lineHeight: 1,
+    border: '1px solid transparent',
+    transition:
+      'background-color 120ms ease, color 120ms ease, border-color 120ms ease, box-shadow 120ms ease',
+    boxShadow: isDarkMode ? '0 1px 2px rgba(0,0,0,0.35)' : '0 1px 2px rgba(0,0,0,0.12)',
+    display: 'inline-block',
+    cursor: 'pointer',
+    userSelect: 'none',
+  };
+
+  const navPillSize: React.CSSProperties = { padding: '8px 14px', fontSize: 14 };
+  const togglePillSize: React.CSSProperties = { padding: '6px 10px', fontSize: 13 };
+
+  const activeStyle = (extra?: React.CSSProperties): React.CSSProperties => ({
+    ...pillBase,
+    background: activeBg,
+    color: activeColor,
+    borderColor: activeBorder,
+    ...extra,
+  });
+  const inactiveStyle = (extra?: React.CSSProperties): React.CSSProperties => ({
+    ...pillBase,
+    background: 'transparent',
+    color: inactiveColor,
+    ...extra,
+  });
+
+  // Type-safe helpers (no `any`)
+  const isElementActive = (el: HTMLAnchorElement | HTMLElement): boolean =>
+    el.getAttribute('aria-current') === 'page';
+
+  const setHover = (el: HTMLAnchorElement | HTMLElement, on: boolean) => {
+    if (isElementActive(el)) return; // don't override active styling
+    (el as HTMLElement).style.background = on ? hoverBg : 'transparent';
+  };
 
   return (
     <Paper
@@ -42,24 +89,58 @@ export default function Header() {
           gap: '1rem',
         }}
       >
-        {/* Theme Toggle - Top Left */}
-        <Box
-          pos="absolute"
-          top="1rem"
-          left="1rem"
-          style={{ zIndex: 10 }}
-        >
-          <ThemeToggle />
+        {/* Top-left controls: Theme toggle (left) + Nav pills (right) */}
+        <Box pos="absolute" top="1rem" left="1rem" style={{ zIndex: 10 }}>
+          <Group gap="sm" align="center">
+            {/* Theme toggle pill (button) */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              style={inactiveStyle(togglePillSize)}
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => setHover(e.currentTarget, true)}
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => setHover(e.currentTarget, false)}
+            >
+              {isDarkMode ? <IconSun size={16} /> : <IconMoon size={16} />}
+            </button>
+
+            <Group gap="xs">
+              <NavLink
+                to="/"
+                end
+                style={({ isActive }) =>
+                  isActive ? activeStyle(navPillSize) : inactiveStyle(navPillSize)
+                }
+                onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) =>
+                  setHover(e.currentTarget, true)
+                }
+                onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) =>
+                  setHover(e.currentTarget, false)
+                }
+              >
+                Home
+              </NavLink>
+
+              <NavLink
+                to="/about"
+                style={({ isActive }) =>
+                  isActive ? activeStyle(navPillSize) : inactiveStyle(navPillSize)
+                }
+                onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) =>
+                  setHover(e.currentTarget, true)
+                }
+                onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) =>
+                  setHover(e.currentTarget, false)
+                }
+              >
+                About
+              </NavLink>
+            </Group>
+          </Group>
         </Box>
 
         {/* Title + subtitle - Left */}
-        <Box
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
+        <Box style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
           <Box>
             <Text
               fw={800}
