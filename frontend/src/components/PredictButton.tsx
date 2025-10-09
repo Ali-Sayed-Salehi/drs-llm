@@ -97,7 +97,7 @@ export default function PredictButton({
                   input: {
                     borderColor: isDarkMode ? '#64748b' : '#cbd5e1',
                     '&:hover': { borderColor: isDarkMode ? '#7c8aa2' : '#94a3b8' },
-                    '&[data-checked]': {
+                    '&[dataChecked]': {
                       backgroundColor: buttonBg,
                       borderColor: buttonBg,
                     },

@@ -1,13 +1,27 @@
 // src/components/PredictGithub.tsx
 import { useMemo, useState } from 'react';
-import { Card, Group, Stack, Text, Title, Box, TextInput } from '@mantine/core';
-import { IconBrandGithub, IconLink } from '@tabler/icons-react';
+import {
+  Card,
+  Group,
+  Stack,
+  Text,
+  Title,
+  Box,
+  TextInput,
+  ActionIcon,
+  Badge,
+  Button,
+  ScrollArea,
+} from '@mantine/core';
+import { IconBrandGithub, IconLink, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { api } from '../api';
 import type { PredictResponse } from '../types';
 import AnalysisResults from './AnalysisResults';
 import PredictButton from './PredictButton';
 import CONSTANTS from '../constants';
+
+type Item = { id: string; url: string };
 
 function parseCommitUrl(input: string): { repo: string; sha: string } | null {
   let raw = input.trim();
@@ -24,57 +38,77 @@ function parseCommitUrl(input: string): { repo: string; sha: string } | null {
 
   const path = url.pathname.replace(/\/+$/, '');
 
+  // /owner/repo/commit/<sha>
   const m1 = path.match(/^\/([^/]+)\/([^/]+)\/commit\/([0-9a-fA-F]{7,40})$/);
   if (m1) {
     const [, owner, repo, sha] = m1;
     return { repo: `${owner}/${repo}`, sha };
   }
+
+  // /owner/repo/pull/<n>/commits/<sha>
   const m2 = path.match(/^\/([^/]+)\/([^/]+)\/pull\/\d+\/commits\/([0-9a-fA-F]{7,40})$/);
   if (m2) {
     const [, owner, repo, sha] = m2;
     return { repo: `${owner}/${repo}`, sha };
   }
+
   return null;
 }
 
 export default function PredictGithub() {
   const { isDarkMode } = useTheme();
 
-  const [commitUrl, setCommitUrl] = useState(
-    `https://github.com/${CONSTANTS.OWNER_REPO_1}/commit/${CONSTANTS.COMMIT_SHA_1}`
-  );
+  // MULTI-ITEM support (like Manual tab)
+  const [items, setItems] = useState<Item[]>([
+    { id: crypto.randomUUID(), url: `https://github.com/${CONSTANTS.OWNER_REPO_1}/commit/${CONSTANTS.COMMIT_SHA_1}` },
+  ]);
 
   const [withExplanation, setWithExplanation] = useState(false);
-  const [explanation, setExplanation] = useState<string | undefined>();
+  const [explanations, setExplanations] = useState<string[] | null>(null);
   const [isExplaining, setIsExplaining] = useState(false);
 
   const [isPending, setPending] = useState(false);
   const [error, setError] = useState<Error | undefined>();
-  const [result, setResult] = useState<(PredictResponse & { repo?: string; sha?: string }) | undefined>();
+  const [results, setResults] = useState<Array<PredictResponse & { repo?: string; sha?: string }>>([]);
 
-  const parsed = useMemo(() => parseCommitUrl(commitUrl), [commitUrl]);
-  const canSubmit = Boolean(parsed);
+  const isBatch = items.length > 1;
+
+  const addItem = () =>
+    setItems((xs) => [...xs, { id: crypto.randomUUID(), url: '' }]);
+
+  const removeItem = (id: string) => setItems((xs) => xs.filter((x) => x.id !== id));
+
+  const updateUrl = (id: string, v: string) =>
+    setItems((xs) => xs.map((x) => (x.id === id ? { ...x, url: v } : x)));
+
+  const parsedAll = useMemo(() => items.map((it) => parseCommitUrl(it.url)), [items]);
+  const canSubmit = parsedAll.every((p) => p !== null) && items.length > 0;
 
   const onSubmit = async () => {
-    if (!parsed) return;
+    if (!canSubmit) return;
 
     setPending(true);
     setError(undefined);
-    setResult(undefined);
-    setExplanation(undefined);
+    setResults([]);
+    setExplanations(null);
     setIsExplaining(false);
 
-    const { repo, sha } = parsed;
+    const parsedPairs = parsedAll as Array<{ repo: string; sha: string }>;
 
     try {
-      const r = await api.predictBySha({ repo, sha });
-      setResult({ ...r, repo, sha });
+      const preds = await Promise.all(
+        parsedPairs.map(({ repo, sha }) => api.predictBySha({ repo, sha }).then((r) => ({ ...r, repo, sha })))
+      );
+      setResults(preds);
 
       if (withExplanation) {
         setIsExplaining(true);
-        const txt = await api.clmPredictBySha({ repo, sha });
-        setExplanation(txt);
-        setIsExplaining(false);
+        try {
+          const texts = await Promise.all(parsedPairs.map(({ repo, sha }) => api.clmPredictBySha({ repo, sha })));
+          setExplanations(texts);
+        } finally {
+          setIsExplaining(false);
+        }
       }
     } catch (e) {
       setError(e as Error);
@@ -84,78 +118,126 @@ export default function PredictGithub() {
     }
   };
 
-  const urlHelp =
-    commitUrl && !parsed
-      ? 'Expected: https://github.com/<owner>/<repo>/commit/<sha> or /pull/<n>/commits/<sha>'
-      : undefined;
+  const urlHelpFor = (val: string) => {
+    if (!val.trim()) return undefined;
+    return parseCommitUrl(val)
+      ? undefined
+      : 'Expected: https://github.com/<owner>/<repo>/commit/<sha> or /pull/<n>/commits/<sha>';
+  };
 
   return (
     <Stack gap="xl">
-      {/* Header */}
-      <Box>
-        <Title
-          order={3}
-          style={{ color: isDarkMode ? '#cbd5e1' : '#475569', fontWeight: 600, marginBottom: '0.5rem' }}
+      {/* Header + Add Item (top-right) */}
+      <Group justify="space-between" align="center">
+        <Box>
+          <Title
+            order={3}
+            style={{ color: isDarkMode ? '#cbd5e1' : '#475569', fontWeight: 600, marginBottom: '0.5rem' }}
+          >
+            GitHub Commit Analysis
+          </Title>
+          <Text size="sm" c="gray.6">
+            Paste one or more GitHub commit URLs to fetch their diffs and analyze risk
+          </Text>
+        </Box>
+
+        <Button
+          leftSection={<IconPlus size={16} />}
+          variant="light"
+          onClick={addItem}
+          style={{
+            fontWeight: 500,
+            borderColor: isDarkMode ? '#475569' : '#cbd5e1',
+            backgroundColor: isDarkMode ? '#334155' : '#f8fafc',
+            color: isDarkMode ? '#cbd5e1' : '#475569',
+          }}
         >
-          GitHub Commit Analysis
-        </Title>
-        <Text size="sm" c="gray.6">
-          Paste a GitHub commit URL to fetch the diff and analyze the risk
-        </Text>
-      </Box>
+          Add Item
+        </Button>
+      </Group>
 
-      {/* Form (card) */}
-      <Card
-        withBorder
-        radius="lg"
-        shadow="0 2px 4px rgba(0, 0, 0, 0.05)"
-        style={{
-          backgroundColor: isDarkMode ? '#1e293b' : '#fafbfc',
-          border: `1px solid ${isDarkMode ? '#374151' : '#e2e8f0'}`,
-        }}
-      >
+      {/* Items Section (cards) */}
+      <ScrollArea.Autosize mah={600}>
         <Stack gap="lg">
-          <Box>
-            <Group gap="sm" mb="sm">
-              <IconBrandGithub size={18} color={isDarkMode ? '#cbd5e1' : '#64748b'} />
-              <Text fw={600} size="sm" style={{ color: isDarkMode ? '#e5e7eb' : '#374151' }}>
-                Commit URL
-              </Text>
-            </Group>
-            <TextInput
-              leftSection={<IconLink size={16} />}
-              placeholder="e.g., https://github.com/facebook/react/commit/16ff29d2...  or  https://github.com/owner/repo/pull/123/commits/abcd1234"
-              value={commitUrl}
-              onChange={(e) => setCommitUrl(e.currentTarget.value)}
-              error={urlHelp}
-              styles={{
-                input: {
-                  backgroundColor: isDarkMode ? '#0f172a' : 'white',
-                  color: isDarkMode ? '#f1f5f9' : '#1f2937',
-                  borderColor: isDarkMode ? '#475569' : '#d1d5db',
-                  borderRadius: '8px',
-                  '&::placeholder': { color: isDarkMode ? '#9ca3af' : '#6b7280' },
-                  '&:focus': {
-                    borderColor: '#3b82f6',
-                    boxShadow: '0 0 0 3px rgba(59,130,246,.25)',
-                  },
-                },
+          {items.map((it, i) => (
+            <Card
+              key={it.id}
+              withBorder
+              radius="lg"
+              shadow="0 2px 4px rgba(0, 0, 0, 0.05)"
+              style={{
+                backgroundColor: isDarkMode ? '#1e293b' : '#fafbfc',
+                border: `1px solid ${isDarkMode ? '#374151' : '#e2e8f0'}`,
               }}
-            />
-          </Box>
-        </Stack>
-      </Card>
+            >
+              <Stack gap="md">
+                <Group justify="space-between" mb="xs">
+                  <Group gap="sm">
+                    <Badge variant="light" color="blue" style={{ fontWeight: 500 }}>
+                      Item #{i + 1}
+                    </Badge>
+                    <Group gap="sm">
+                      <IconBrandGithub size={16} color={isDarkMode ? '#cbd5e1' : '#64748b'} />
+                      <Text fw={600} size="sm" style={{ color: isDarkMode ? '#e5e7eb' : '#374151' }}>
+                        Commit URL
+                      </Text>
+                    </Group>
+                  </Group>
+                  {items.length > 1 && (
+                    <ActionIcon
+                      variant="subtle"
+                      color="gray"
+                      onClick={() => removeItem(it.id)}
+                      aria-label="Remove item"
+                      style={{
+                        border: `1px solid ${isDarkMode ? '#475569' : '#e2e8f0'}`,
+                        borderRadius: '6px',
+                      }}
+                    >
+                      <IconTrash size={16} />
+                    </ActionIcon>
+                  )}
+                </Group>
 
-      {/* Controls (OUTSIDE the card) */}
+                <TextInput
+                  leftSection={<IconLink size={16} />}
+                  placeholder="e.g., https://github.com/owner/repo/pull/123/commits/abcd1234"
+                  value={it.url}
+                  onChange={(e) => updateUrl(it.id, e.currentTarget.value)}
+                  error={urlHelpFor(it.url)}
+                  styles={{
+                    input: {
+                      backgroundColor: isDarkMode ? '#0f172a' : 'white',
+                      color: isDarkMode ? '#f1f5f9' : '#1f2937',
+                      borderColor: isDarkMode ? '#475569' : '#d1d5db',
+                      borderRadius: '8px',
+                      '&::placeholder': { color: isDarkMode ? '#9ca3af' : '#6b7280' },
+                      '&:focus': {
+                        borderColor: '#3b82f6',
+                        boxShadow: '0 0 0 3px rgba(59,130,246,.25)',
+                      },
+                    },
+                  }}
+                />
+              </Stack>
+            </Card>
+          ))}
+        </Stack>
+      </ScrollArea.Autosize>
+
+      {/* Controls (OUTSIDE the cards; same as Manual tab) */}
       <PredictButton
         onClick={onSubmit}
         loading={isPending || (withExplanation && isExplaining)}
         disabled={!canSubmit}
+        idleLabel={isBatch ? `Analyze ${items.length} Items` : 'Analyze'}
         loadingLabel={withExplanation ? 'Analyzing + Explaining...' : 'Analyzing...'}
         pendingMessage={
-          withExplanation
-            ? 'Fetching commit, analyzing, and generating explanation...'
-            : 'Fetching commit & Analyzing...'
+          isPending
+            ? isBatch
+              ? `Fetching ${items.length} commit(s)${withExplanation ? ' + generating explanations' : ''}...`
+              : `Fetching 1 commit${withExplanation ? ' + generating explanation' : ''}...`
+            : undefined
         }
         errorMessage={error?.message}
         size="md"
@@ -167,10 +249,10 @@ export default function PredictGithub() {
 
       {/* Results */}
       <AnalysisResults
-        results={result ? [result] : []}
-        explanations={explanation ? [explanation] : []}
-        explainLoading={withExplanation && isExplaining && !explanation}
-        title="Analysis Result"
+        results={results}
+        explanations={withExplanation ? (explanations ?? []) : []}
+        explainLoading={withExplanation && isExplaining}
+        title={isBatch ? 'Batch Analysis Results' : 'Analysis Result'}
       />
     </Stack>
   );

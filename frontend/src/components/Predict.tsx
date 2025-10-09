@@ -28,14 +28,17 @@ type Item = { id: string; commit_message: string; code_diff: string };
 export default function Predict() {
   const { isDarkMode } = useTheme();
 
+  // Default to SINGLE item (not batch)
   const [items, setItems] = useState<Item[]>([
     { id: crypto.randomUUID(), commit_message: DEFAULT_COMMIT_1, code_diff: DEFAULT_DIFF_1 },
   ]);
 
+  // Optional CLM explanation
   const [withExplanation, setWithExplanation] = useState<boolean>(false);
   const [explanations, setExplanations] = useState<string[] | null>(null);
   const [isExplaining, setIsExplaining] = useState<boolean>(false);
 
+  // seq-cls hooks
   const {
     data: sData,
     isPending: sPending,
@@ -84,7 +87,7 @@ export default function Predict() {
   const submit = async () => {
     if (items.length === 0) return;
 
-    setExplanations(null);
+    setExplanations(null); // reset old explanations
 
     if (isBatch) {
       const payload = items.map(({ commit_message, code_diff }) => ({ commit_message, code_diff }));
@@ -92,7 +95,9 @@ export default function Predict() {
       if (withExplanation) {
         try {
           await runClmExplanations(payload);
-        } catch {/* ignore */}
+        } catch {
+          /* ignore */
+        }
       }
     } else {
       const { commit_message, code_diff } = items[0];
@@ -100,10 +105,15 @@ export default function Predict() {
       if (withExplanation) {
         try {
           await runClmExplanations([{ commit_message, code_diff }]);
-        } catch {/* ignore */}
+        } catch {
+          /* ignore */
+        }
       }
     }
   };
+
+  // disable Analyze when any diff is empty (trimmed) ---
+  const canSubmit = items.length > 0 && items.every((it) => it.code_diff.trim().length > 0);
 
   return (
     <Stack gap="xl">
@@ -251,11 +261,11 @@ export default function Predict() {
         </Stack>
       </ScrollArea.Autosize>
 
-      {/* Controls (OUTSIDE the cards; matches GitHub tab) */}
+      {/* Controls */}
       <PredictButton
         onClick={submit}
         loading={activePending}
-        disabled={items.length === 0}
+        disabled={!canSubmit}                      // <- disabled when any diff is empty
         idleLabel={isBatch ? `Analyze ${items.length} Items` : 'Analyze'}
         loadingLabel={isExplaining ? 'Explaining…' : 'Analyzing...'}
         pendingMessage={
@@ -266,14 +276,14 @@ export default function Predict() {
             : undefined
         }
         errorMessage={activeIsError ? activeError?.message : undefined}
-        size="lg"
+        size="md"
         showExplainToggle
         explainChecked={withExplanation}
         onExplainChange={setWithExplanation}
         explainLabel="Explain with CLM"
       />
 
-      {/* Results */}
+      {/* Results Section */}
       <AnalysisResults
         results={results}
         explanations={withExplanation ? (explanations ?? []) : []}

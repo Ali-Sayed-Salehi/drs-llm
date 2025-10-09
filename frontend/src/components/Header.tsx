@@ -9,6 +9,7 @@ import bannerUrl from '@/assets/llama_logo.png';
 import logo1 from '@/assets/concordia_logo.png';
 import logo2 from '@/assets/utk_logo.png';
 import logo3 from '@/assets/woc_logo.png';
+import { YOUTUBE_DEMO_URL } from '../constants';
 
 export default function Header() {
   const { isDarkMode, toggleTheme } = useTheme();
@@ -135,6 +136,18 @@ export default function Header() {
               >
                 About
               </NavLink>
+
+              {/* New: external pill that goes straight to YouTube demo */}
+              <a
+                href={YOUTUBE_DEMO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={inactiveStyle(navPillSize)}
+                onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => setHover(e.currentTarget, true)}
+                onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => setHover(e.currentTarget, false)}
+              >
+                Demo
+              </a>
             </Group>
           </Group>
         </Box>
