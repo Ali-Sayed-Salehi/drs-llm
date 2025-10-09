@@ -38,27 +38,22 @@ function parseCommitUrl(input: string): { repo: string; sha: string } | null {
 
   const path = url.pathname.replace(/\/+$/, '');
 
-  // /owner/repo/commit/<sha>
   const m1 = path.match(/^\/([^/]+)\/([^/]+)\/commit\/([0-9a-fA-F]{7,40})$/);
   if (m1) {
     const [, owner, repo, sha] = m1;
     return { repo: `${owner}/${repo}`, sha };
   }
-
-  // /owner/repo/pull/<n>/commits/<sha>
   const m2 = path.match(/^\/([^/]+)\/([^/]+)\/pull\/\d+\/commits\/([0-9a-fA-F]{7,40})$/);
   if (m2) {
     const [, owner, repo, sha] = m2;
     return { repo: `${owner}/${repo}`, sha };
   }
-
   return null;
 }
 
 export default function PredictGithub() {
   const { isDarkMode } = useTheme();
 
-  // MULTI-ITEM support (like Manual tab)
   const [items, setItems] = useState<Item[]>([
     { id: crypto.randomUUID(), url: `https://github.com/${CONSTANTS.OWNER_REPO_1}/commit/${CONSTANTS.COMMIT_SHA_1}` },
   ]);
@@ -73,20 +68,15 @@ export default function PredictGithub() {
 
   const isBatch = items.length > 1;
 
-  const addItem = () =>
-    setItems((xs) => [...xs, { id: crypto.randomUUID(), url: '' }]);
-
+  const addItem = () => setItems((xs) => [...xs, { id: crypto.randomUUID(), url: '' }]);
   const removeItem = (id: string) => setItems((xs) => xs.filter((x) => x.id !== id));
-
-  const updateUrl = (id: string, v: string) =>
-    setItems((xs) => xs.map((x) => (x.id === id ? { ...x, url: v } : x)));
+  const updateUrl = (id: string, v: string) => setItems((xs) => xs.map((x) => (x.id === id ? { ...x, url: v } : x)));
 
   const parsedAll = useMemo(() => items.map((it) => parseCommitUrl(it.url)), [items]);
   const canSubmit = parsedAll.every((p) => p !== null) && items.length > 0;
 
   const onSubmit = async () => {
     if (!canSubmit) return;
-
     setPending(true);
     setError(undefined);
     setResults([]);
@@ -94,7 +84,6 @@ export default function PredictGithub() {
     setIsExplaining(false);
 
     const parsedPairs = parsedAll as Array<{ repo: string; sha: string }>;
-
     try {
       const preds = await Promise.all(
         parsedPairs.map(({ repo, sha }) => api.predictBySha({ repo, sha }).then((r) => ({ ...r, repo, sha })))
@@ -118,12 +107,12 @@ export default function PredictGithub() {
     }
   };
 
-  const urlHelpFor = (val: string) => {
-    if (!val.trim()) return undefined;
-    return parseCommitUrl(val)
+  const urlHelpFor = (val: string) =>
+    !val.trim()
+      ? undefined
+      : parseCommitUrl(val)
       ? undefined
       : 'Expected: https://github.com/<owner>/<repo>/commit/<sha> or /pull/<n>/commits/<sha>';
-  };
 
   return (
     <Stack gap="xl">
@@ -140,7 +129,6 @@ export default function PredictGithub() {
             Paste one or more GitHub commit URLs to fetch their diffs and analyze risk
           </Text>
         </Box>
-
         <Button
           leftSection={<IconPlus size={16} />}
           variant="light"
@@ -171,34 +159,39 @@ export default function PredictGithub() {
               }}
             >
               <Stack gap="md">
-                <Group justify="space-between" mb="xs">
+                {/* Header row inside the card */}
+                <Group justify="space-between" mb="xs" align="center">
+                  {/* Left: label "Commit URL" with icon */}
                   <Group gap="sm">
+                    <IconBrandGithub size={16} color={isDarkMode ? '#cbd5e1' : '#64748b'} />
+                    <Text fw={600} size="sm" style={{ color: isDarkMode ? '#e5e7eb' : '#374151' }}>
+                      Commit URL
+                    </Text>
+                  </Group>
+
+                  {/* Right: Item badge (top-right) + optional remove */}
+                  <Group gap="xs">
                     <Badge variant="light" color="blue" style={{ fontWeight: 500 }}>
                       Item #{i + 1}
                     </Badge>
-                    <Group gap="sm">
-                      <IconBrandGithub size={16} color={isDarkMode ? '#cbd5e1' : '#64748b'} />
-                      <Text fw={600} size="sm" style={{ color: isDarkMode ? '#e5e7eb' : '#374151' }}>
-                        Commit URL
-                      </Text>
-                    </Group>
+                    {items.length > 1 && (
+                      <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        onClick={() => removeItem(it.id)}
+                        aria-label="Remove item"
+                        style={{
+                          border: `1px solid ${isDarkMode ? '#475569' : '#e2e8f0'}`,
+                          borderRadius: '6px',
+                        }}
+                      >
+                        <IconTrash size={16} />
+                      </ActionIcon>
+                    )}
                   </Group>
-                  {items.length > 1 && (
-                    <ActionIcon
-                      variant="subtle"
-                      color="gray"
-                      onClick={() => removeItem(it.id)}
-                      aria-label="Remove item"
-                      style={{
-                        border: `1px solid ${isDarkMode ? '#475569' : '#e2e8f0'}`,
-                        borderRadius: '6px',
-                      }}
-                    >
-                      <IconTrash size={16} />
-                    </ActionIcon>
-                  )}
                 </Group>
 
+                {/* URL input */}
                 <TextInput
                   leftSection={<IconLink size={16} />}
                   placeholder="e.g., https://github.com/owner/repo/pull/123/commits/abcd1234"

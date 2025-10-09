@@ -16,10 +16,10 @@ export default function About() {
   const cardBg = isDarkMode ? '#0f172a' : '#ffffff';
   const cardBorder = isDarkMode ? '#334155' : '#e2e8f0';
 
-  const titleColor = isDarkMode ? '#f1f5f9' : '#0f172a'; // very light / very dark
-  const textColor  = isDarkMode ? '#e5e7eb' : '#1f2937'; // body text
-  const linkColor  = isDarkMode ? '#93c5fd' : '#1d4ed8'; // blue-300 / blue-700-ish
-  const linkHover  = isDarkMode ? '#bfdbfe' : '#2563eb'; // slightly brighter on hover
+  const titleColor = isDarkMode ? '#f1f5f9' : '#0f172a';
+  const textColor  = isDarkMode ? '#e5e7eb' : '#1f2937';
+  const linkColor  = isDarkMode ? '#93c5fd' : '#1d4ed8';
+  const linkHover  = isDarkMode ? '#bfdbfe' : '#2563eb';
 
   // Convert normal YT links to embed form if needed
   const toEmbed = (url: string) => {
