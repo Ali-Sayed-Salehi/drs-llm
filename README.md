@@ -78,8 +78,8 @@ cd deploy
 # Bring up only the backend and also build the images in case of new changes
 ./compose.sh up -d --build drs-gateway-api, drs-seq-cls-api, drs-clm-api
 
-# Bring up only the frontend
-./compose.sh up -d --build drs-frontend
+# Bring up only the frontend without replacement
+./compose.sh up -d --build drs-frontend --no-recreate
 
 # Bring up the whole stack
 ./compose.sh up -d --build
