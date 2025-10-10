@@ -242,6 +242,7 @@ class HFSeqClassifier:
             model_kwargs=(kwargs if isinstance(model_for_pipeline, str) else {}),
         )
         self._tokenizer = tok
+        self._max_length = settings.max_length
 
         # If no pad token, use eos (LLaMA-like)
         if self._tokenizer.pad_token_id is None and self._tokenizer.eos_token_id is not None:
@@ -249,11 +250,11 @@ class HFSeqClassifier:
             self._tokenizer.pad_token = self._tokenizer.eos_token
 
     @limited_infer
-    def predict(self, text: str, max_length: int) -> tuple[str, float]:
+    def predict(self, text: str) -> tuple[str, float]:
         """
         Returns (label, confidence) using top-1 from the HF pipeline.
         """
-        out = self.pipe(text, truncation=True, max_length=max_length)
+        out = self.pipe(text, truncation=True, max_length=self._max_length)
         # HF may return dict or [dict]; normalize
         item = out[0] if isinstance(out, list) else out
         return item["label"], float(item["score"])
@@ -297,7 +298,7 @@ class HFCLMSeqClsClassifier:
         log.info("CLM→Seq-Cls pipeline ready (used_adapter=%s).", used_adapter)
 
     @limited_infer
-    def predict(self, text: str, max_length: int) -> tuple[str, float]:
+    def predict(self, text: str) -> tuple[str, float]:
         out = self.pipe(text)  # returns [{"logits": (logit0, logit1), "top_in_set": bool}]
         item = out[0]
         logit0, logit1 = item["logits"]
@@ -322,8 +323,8 @@ def _make_classifier(settings: BaseAppSettings):
         return HFCLMSeqClsClassifier(settings)
     return HFSeqClassifier(settings)
 
-def get_classifier(settings: BaseAppSettings) -> Union[HFSeqClassifier, HFCLMSeqClsClassifier]:
+def get_classifier(settings: BaseAppSettings) -> SingletonFactory:
     """
     Public entrypoint for the API layer. Singleton-ized to reuse loaded weights.
     """
-    return SingletonFactory(lambda: _make_classifier(settings))()
+    return SingletonFactory(lambda: _make_classifier(settings))

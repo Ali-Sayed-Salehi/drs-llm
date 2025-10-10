@@ -11,8 +11,8 @@
 
 set -euo pipefail
 
-SEQ_BASE="${1:-${BASE:-http://localhost:8084/seq-cls}}"
-CLM_BASE="${2:-${CLM_BASE:-http://localhost:8085/clm}}"
+SEQ_BASE="${1:-${BASE:-http://localhost:8084}}"
+CLM_BASE="${2:-${CLM_BASE:-http://localhost:8085}}"
 
 GH_REPO="${GH_REPO:-apache/flink}"
 GH_SHA="${GH_SHA:-d7b5213f1fd2910ce0fd111027608fb452c1f733}"
@@ -112,7 +112,7 @@ test_clm() {
 
 # ---- Run both suites ----
 test_seq_cls
-# test_clm
+test_clm
 
 echo
 hr

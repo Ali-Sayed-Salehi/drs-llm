@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ENV_FILE=".env"
+ENV_FILE=".env.dev"
 
 if [[ ! -f "${ENV_FILE}" ]]; then
   echo "Env file not found: ${ENV_FILE}" >&2
