@@ -47,13 +47,13 @@ export default function ApiGuide() {
       <Paper p="lg" radius="lg" withBorder style={cardStyle}>
         <TitleEl>GET /health</TitleEl>
         <TextEl>Health check.</TextEl>
-        <CodeBlock>{`curl -sS http://localhost:8083/health`}</CodeBlock>
+        <CodeBlock>{`curl -sS http://worldofcode.org/drs-api/health`}</CodeBlock>
       </Paper>
 
       <Paper p="lg" radius="lg" withBorder style={cardStyle}>
         <TitleEl>POST /seq-cls/predict</TitleEl>
         <TextEl>JSON in, JSON out.</TextEl>
-        <CodeBlock>{`curl -sS -X POST http://localhost:8083/seq-cls/predict \\
+        <CodeBlock>{`curl -sS -X POST http://worldofcode.org/drs-api/seq-cls/predict \\
   -H "Content-Type: application/json" \\
   -d '{"diff":"diff --git ...","commit_message":"Fix NPE"}'`}</CodeBlock>
       </Paper>
@@ -61,7 +61,7 @@ export default function ApiGuide() {
       <Paper p="lg" radius="lg" withBorder style={cardStyle}>
         <TitleEl>POST /seq-cls/predict_batch</TitleEl>
         <TextEl>Array of requests → array of responses.</TextEl>
-        <CodeBlock>{`curl -sS -X POST http://localhost:8083/seq-cls/predict_batch \\
+        <CodeBlock>{`curl -sS -X POST http://worldofcode.org/drs-api/seq-cls/predict_batch \\
   -H "Content-Type: application/json" \\
   -d '[{"diff":"...","commit_message":"..."},{"diff":"...","commit_message":"..."}]'`}</CodeBlock>
       </Paper>
@@ -69,7 +69,7 @@ export default function ApiGuide() {
       <Paper p="lg" radius="lg" withBorder style={cardStyle}>
         <TitleEl>POST /seq-cls/predict_by_sha</TitleEl>
         <TextEl>Look up by repo + commit SHA.</TextEl>
-        <CodeBlock>{`curl -sS -X POST http://localhost:8083/seq-cls/predict_by_sha \\
+        <CodeBlock>{`curl -sS -X POST http://worldofcode.org/drs-api/seq-cls/predict_by_sha \\
   -H "Content-Type: application/json" \\
   -d '{"owner_repo":"facebook/react","commit_sha":"abc123..."}'`}</CodeBlock>
       </Paper>
@@ -77,7 +77,7 @@ export default function ApiGuide() {
       <Paper p="lg" radius="lg" withBorder style={cardStyle}>
         <TitleEl>POST /clm/predict</TitleEl>
         <TextEl>JSON in, raw text out.</TextEl>
-        <CodeBlock>{`curl -sS -X POST http://localhost:8083/clm/predict \\
+        <CodeBlock>{`curl -sS -X POST http://worldofcode.org/drs-api/clm/predict \\
   -H "Content-Type: application/json" \\
   -d '{"diff":"...","commit_message":"..."}'`}</CodeBlock>
       </Paper>
@@ -85,7 +85,7 @@ export default function ApiGuide() {
       <Paper p="lg" radius="lg" withBorder style={cardStyle}>
         <TitleEl>POST /clm/predict_by_sha</TitleEl>
         <TextEl>Raw text by repo + commit SHA.</TextEl>
-        <CodeBlock>{`curl -sS -X POST http://localhost:8083/clm/predict_by_sha \\
+        <CodeBlock>{`curl -sS -X POST http://worldofcode.org/drs-api/clm/predict_by_sha \\
   -H "Content-Type: application/json" \\
   -d '{"owner_repo":"facebook/react","commit_sha":"abc123..."}'`}</CodeBlock>
       </Paper>

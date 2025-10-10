@@ -45,6 +45,7 @@ services:
       LOG_PREFIX: ${SEQCLS_LOG_PREFIX:-seq-cls}
       # LLM knobs (shared defaults, per-service override via env if needed)
       DRSLLM_MODEL_ID: ${SEQCLS_DRSLLM_MODEL_ID:-/LLMs/trained/sequence-classification/llama3.1_8B_apachejit_small}
+      DRSLLM_BASE_MODEL_PATH: ${SEQCLS_BASE_MODEL_PATH:-/LLMs/snapshots/meta-llama/Llama-3.1-8B}
       DRSLLM_DTYPE: ${DRSLLM_DTYPE:-float16}
       DRSLLM_MAX_LENGTH: "${DRSLLM_MAX_LENGTH:-4000}"
       DRSLLM_LOAD_IN_4BIT: "${DRSLLM_LOAD_IN_4BIT:-true}"
@@ -52,6 +53,7 @@ services:
       DRSLLM_ACCESS_LOG_LEVEL: ${DRSLLM_ACCESS_LOG_LEVEL:-INFO}
       DRSLLM_TRANSFORMERS_LOG_LEVEL: ${DRSLLM_TRANSFORMERS_LOG_LEVEL:-INFO}
       DRSLLM_GITHUB_API_BASE: ${DRSLLM_GITHUB_API_BASE:-https://api.github.com}
+      DRSLLM_CLM_FOR_SEQ_CLS: "${SEQCLS_CLM_FOR_SEQ_CLS:-false}"
 
   drs-clm-api:
     <<: *service_base

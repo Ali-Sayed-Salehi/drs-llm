@@ -1,14 +1,27 @@
+# /drs-llm/core/settings.py
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, field_validator
 from typing import Literal, Optional
 
 class BaseAppSettings(BaseSettings):
-    # Shared: model + inference
-    model_id: str = \
-        "/LLMs/trained/sequence-classification/llama3.1_8B_apachejit_small"
+    # May be: (a) full fine-tuned model dir OR (b) a PEFT/LoRA adapter dir
+    model_id: str = "/LLMs/trained/sequence-classification/llama3.1_8B_apachejit_small"
+    # If model_id points to an adapter, you MUST set base_model_path to the base HF model
+    base_model_path: Optional[str] = "/LLMs/snapshots/meta-llama/Llama-3.1-8B"
+
     dtype: Literal["float16", "bfloat16", "float32"] = "float16"
     max_length: int = 4096
     load_in_4bit: bool = True
+    local_files_only: bool = True
+    trust_remote_code: bool = True
+    device_map: str = "auto"
+
+    clm_for_seq_cls: bool = False
+    zero_token: str = "0"
+    one_token: str  = "1"
+    drs_token: str  = "[/drs]"
+    strict_single_token: bool = True
 
     # Server
     host: str = "0.0.0.0"
@@ -34,5 +47,5 @@ class BaseAppSettings(BaseSettings):
     @classmethod
     def _upper(cls, v: str) -> str:
         return str(v).upper()
-    
+
 settings = BaseAppSettings()

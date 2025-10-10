@@ -11,13 +11,13 @@ from core.diff_utils import diff_to_structured_xml
 from core.runtime import preload_singleton
 
 from .schemas import PredictRequest, PredictResponse, PredictBySHARequest
-from .model_cls import make_singleton
+from .model_cls import get_classifier
 
 settings = BaseAppSettings()
 setup_logging()
 log = logging.getLogger(__name__)
 
-clf_singleton = make_singleton(settings)
+clf_singleton = get_classifier(settings)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
