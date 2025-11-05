@@ -1,5 +1,5 @@
 # DRS-LLM
-Predicting pull request bug risk score using Llama sequence classification and explainability with Llama text generation. We use Llama 3.1 8B with 4-bit quantization and the implementation is done uging Hugging face Pipeline interface.  
+Predicting pull request bug risk score using Llama sequence classification and explainability with Llama text generation. We use Llama 3.1 8B with 4-bit quantization and the implementation is done using Hugging face Pipeline interface.  
 
 ## Architecture
 ```mermaid
