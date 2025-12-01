@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the accompanying paper."
+title: "DRS-OSS: LLM-Driven Diff Risk Scoring Tool for PR Risk Prediction"
+authors:
+  - family-names: "Sayedsalehi"
+    given-names: "Ali"
+  - family-names: "Rigby"
+    given-names: "Peter C."
+  - family-names: "Mockus"
+    given-names: "Audris"
+license: "MIT"
+url: "https://arxiv.org/abs/2511.21964"
+preferred-citation:
+  type: article
+  title: "DRS-OSS: LLM-Driven Diff Risk Scoring Tool for PR Risk Prediction"
+  authors:
+    - family-names: "Sayedsalehi"
+      given-names: "Ali"
+    - family-names: "Rigby"
+      given-names: "Peter C."
+    - family-names: "Mockus"
+      given-names: "Audris"
+  year: 2025
+  archive: "arXiv"
+  eprint: "2511.21964"
+  notes: "arXiv preprint"
+  url: "https://arxiv.org/abs/2511.21964"
