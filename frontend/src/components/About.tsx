@@ -8,6 +8,7 @@ import {
   CONTACT_EMAIL,
   COLLAB_EMAILS,
   YOUTUBE_DEMO_URL,
+  RESEARCH_PAPER,
 } from '../constants';
 
 export default function About() {
@@ -79,6 +80,19 @@ export default function About() {
           </List.Item>
           <List.Item>
             <Anchor
+              href={RESEARCH_PAPER}
+              target="_blank"
+              rel="noopener noreferrer"
+              underline="hover"
+              style={{ color: linkColor }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = linkHover)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = linkColor)}
+            >
+              DRS Tool Paper
+            </Anchor>
+          </List.Item>
+          <List.Item>
+            <Anchor
               href={FINETUNE_RESEARCH_URL}
               target="_blank"
               rel="noopener noreferrer"
@@ -145,8 +159,9 @@ export default function About() {
             <iframe
               src={toEmbed(YOUTUBE_DEMO_URL)}
               title="Tool Demo"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
               style={{ border: 0, width: '100%', height: '100%' }}
             />
           </AspectRatio>

@@ -29,9 +29,10 @@ index e69de29..4b825dc 100644
 
 export const DEFAULT_COMMIT_1 = `Fix NPE when user is null`;
 
+export const RESEARCH_PAPER = 'https://arxiv.org/abs/2511.21964';
 export const WEBSITE_REPO_URL = 'https://github.com/Ali-Sayed-Salehi/drs-llm';
 export const FINETUNE_RESEARCH_URL = 'https://github.com/Ali-Sayed-Salehi/jit-dp-llm';
-export const CONTACT_EMAIL = 'a.sayedsalehi@mail.concordia.ca';
+export const CONTACT_EMAIL = 'a.s.salehi.95@gmail.com';
 export const COLLAB_EMAILS = ['peter.rigby@concordia.ca', 'audris@utk.edu'];
 export const YOUTUBE_DEMO_URL = 'https://youtu.be/2FzeRRdNaco';
 
